@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JM Diamond Shop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --primary-purple: #6a1b9a;
+            --accent-gold: #f1c40f;
+            --dark-overlay: rgba(0, 0, 0, 0.8);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0; padding: 0; color: white;
+            background: url('https://akmweb.youngjoygame.com/web/gms/image/bc8375c54a43cc02fedcc304033c23bb.webp') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .container { background: var(--dark-overlay); min-height: 100vh; padding: 20px; box-sizing: border-box; }
+
+        .header { text-align: center; margin-bottom: 20px; }
+        .main-logo { 
+            width: 110px; height: 110px; border-radius: 20px; 
+            border: 3px solid var(--accent-gold); 
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.4); 
+            object-fit: cover;
+        }
+
+        .user-profile {
+            display: flex; align-items: center; justify-content: center;
+            gap: 10px; margin-top: 10px; padding: 5px;
+            background: rgba(255, 255, 255, 0.1); border-radius: 50px;
+            width: fit-content; margin-left: auto; margin-right: auto;
+        }
+        .user-profile img { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--accent-gold); }
+        .user-profile span { font-size: 14px; font-weight: 500; color: var(--accent-gold); }
+
+        .id-section { display: flex; gap: 10px; margin-bottom: 10px; }
+        .id-input {
+            flex: 1; padding: 15px; border-radius: 12px; border: 2px solid var(--primary-purple);
+            background: rgba(255, 255, 255, 0.9); color: #333; font-weight: bold; font-size: 16px; outline: none; text-align: center;
+        }
+
+        #nameDisplay { text-align: center; margin-bottom: 20px; font-weight: bold; min-height: 20px; color: #00ff88; text-shadow: 1px 1px 2px black; }
+
+        .category-title {
+            margin: 20px 0 10px; font-weight: bold; display: flex; align-items: center; gap: 8px;
+            color: var(--accent-gold); border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;
+        }
+        
+        /* Promo Notice Style */
+        .promo-notice {
+            background: rgba(241, 196, 15, 0.1); border-left: 4px solid var(--accent-gold);
+            padding: 10px; margin-bottom: 15px; font-size: 13px; color: #fdfdfd; line-height: 1.5;
+        }
+
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 5px rgba(241, 196, 15, 0.2); }
+            50% { box-shadow: 0 0 15px rgba(241, 196, 15, 0.5); }
+            100% { box-shadow: 0 0 5px rgba(241, 196, 15, 0.2); }
+        }
+
+        .item {
+            background: rgba(255,255,255,0.1); border: 2px solid transparent; border-radius: 15px;
+            padding: 15px; text-align: center; backdrop-filter: blur(8px); transition: 0.3s;
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+        .item.active { border-color: var(--accent-gold) !important; background: rgba(106, 27, 154, 0.4); transform: scale(1.05); animation: none; box-shadow: 0 0 20px var(--accent-gold); }
+        .item img { width: 45px; height: 45px; object-fit: contain; margin-bottom: 8px; }
+        .item .name { display: block; font-size: 14px; font-weight: bold; }
+        .item .price { display: block; font-size: 13px; color: #00ff88; margin-top: 5px; font-weight: bold; }
+
+        .btn-order {
+            width: 100%; padding: 16px; border: none; border-radius: 12px;
+            font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s;
+            background: var(--accent-gold); color: #000; margin-top: 25px;
+            opacity: 0.5; pointer-events: none;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-order.enabled { opacity: 1; pointer-events: auto; background: #0088cc; color: white; box-shadow: 0 5px 15px rgba(0, 136, 204, 0.4); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <img src="https://cdn1.codashop.com/S/content/mobile/images/product-tiles/MLBB-2025-tiles-178x178.jpg" class="main-logo" alt="MLBB 2025">
+        <h1>JM Diamond Shop</h1>
+        
+        <div id="customerProfile" class="user-profile" style="display: none;">
+            <img id="customerPhoto" src="">
+            <span id="customerName"></span>
+        </div>
+    </div>
+
+    <div class="id-section">
+        <input type="number" id="gameId" class="id-input" placeholder="User ID" oninput="checkPlayerName()">
+        <input type="number" id="serverId" class="id-input" style="flex: 0.7;" placeholder="Zone ID" oninput="checkPlayerName()">
+    </div>
+    
+    <div id="nameDisplay"></div>
+
+    <div class="category-title">💎 Double Diamond (Promo)</div>
+    <div class="promo-notice">
+        ⚠️ <b>dia2 အကောင့်တခုတခါပဲထည့်လို့ရပါတယ်နော် အသေးစိတ်လာမေးလို့ရပါတယ်</b>
+    </div>
+    <div class="grid" id="promoGrid"></div>
+
+    <div class="category-title">💎 Weekly Pass</div>
+    <div class="grid">
+        <div class="item" onclick="selectItem(this, 'Weekly Pass', '6,100 ks')">
+            <img src="https://img.smile.one/media/catalog/product/1/5q/15qtr79kjv14qfe1691739555.png">
+            <span class="name">Weekly Pass</span>
+            <span class="price">6,100 ks</span>
+        </div>
+    </div>
+
+    <div class="category-title">💎 Normal Diamonds</div>
+    <div class="grid" id="diaGrid"></div>
+
+    <button id="orderBtn" class="btn-order" onclick="sendToTelegram()">
+        <i class="fa-brands fa-telegram" style="font-size: 24px;"></i> 
+        ဆက်သွယ်ဝယ်ယူမည်
+    </button>
+</div>
+
+<script>
+    let tg = window.Telegram.WebApp;
+    tg.expand();
+
+    function loadCustomerProfile() {
+        const user = tg.initDataUnsafe?.user;
+        if (user) {
+            document.getElementById('customerProfile').style.display = 'flex';
+            document.getElementById('customerName').innerText = user.first_name;
+            document.getElementById('customerPhoto').src = user.photo_url || "https://ui-avatars.com/api/?name=" + user.first_name;
+        }
+    }
+    loadCustomerProfile();
+
+    let selectedProduct = "";
+    let selectedPrice = "";
+    let currentPlayerName = "";
+
+    // Promo & Normal Diamond Data
+    const promos = [
+        ["50+50", "3,500 ks"], ["150+150", "9,900 ks"], ["250+250", "15,700 ks"], ["500+500", "31,600 ks"]
+    ];
+
+    const diamonds = [
+        ["11 Dia", "1,100 ks"], ["22 Dia", "1,900 ks"], ["56 Dia", "4,600 ks"],
+        ["86 Dia", "5,300 ks"], ["112 Dia", "8,600 ks"], ["172 Dia", "10,300 ks"],
+        ["257 Dia", "14,900 ks"], ["343 Dia", "19,700 ks"], ["429 Dia", "24,600 ks"],
+        ["514 Dia", "29,600 ks"], ["600 Dia", "34,100 ks"], ["706 Dia", "39,600 ks"],
+        ["878 Dia", "49,600 ks"], ["1049 Dia", "59,600 ks"], ["2195 Dia", "122,100 ks"],
+        ["3688 Dia", "200,100 ks"], ["5532 Dia", "299,100 ks"], ["9288 Dia", "495,100 ks"]
+    ];
+
+    const lowDiaIcon = "https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760335249005_d119a418-95ae-4562-bd62-135e57cf7504.png";
+    const highDiaIcon = "https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760335247872_f9e8beef-fd2b-46cf-b7fa-99b6132c2e99.png";
+
+    // Fill Grids
+    function fillGrid(containerId, data) {
+        const container = document.getElementById(containerId);
+        data.forEach(d => {
+            const amount = parseInt(d[0]);
+            const icon = (amount >= 600) ? highDiaIcon : lowDiaIcon;
+            container.innerHTML += `
+                <div class="item" onclick="selectItem(this, '${d[0]}', '${d[1]}')">
+                    <img src="${icon}">
+                    <span class="name">${d[0]}</span>
+                    <span class="price">${d[1]}</span>
+                </div>
+            `;
+        });
+    }
+
+    fillGrid('promoGrid', promos);
+    fillGrid('diaGrid', diamonds);
+
+    async function checkPlayerName() {
+        const gid = document.getElementById('gameId').value;
+        const sid = document.getElementById('serverId').value;
+        const display = document.getElementById('nameDisplay');
+
+        if (gid.length >= 8 && sid.length >= 4) {
+            display.innerText = "⌛ Checking Name...";
+            try {
+                const response = await fetch(`https://pizzoshop.com/mlchecker/api.php?id=${gid}&zone=${sid}`);
+                const data = await response.json();
+                if (data.name) {
+                    currentPlayerName = data.name;
+                    display.innerText = "✅ Name: " + data.name;
+                    display.style.color = "#00ff88";
+                } else {
+                    currentPlayerName = "";
+                    display.innerText = "❌ ID Not Found";
+                    display.style.color = "#ff4444";
+                }
+            } catch (e) { display.innerText = ""; }
+        } else { display.innerText = ""; }
+        validateForm();
+    }
+
+    function selectItem(el, name, price) {
+        document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+        selectedProduct = name;
+        selectedPrice = price;
+        validateForm();
+    }
+
+    function validateForm() {
+        const gid = document.getElementById('gameId').value;
+        const sid = document.getElementById('serverId').value;
+        const btn = document.getElementById('orderBtn');
+        if(gid && sid && selectedProduct) btn.classList.add('enabled');
+        else btn.classList.remove('enabled');
+    }
+
+    function sendToTelegram() {
+        const gid = document.getElementById('gameId').value;
+        const sid = document.getElementById('serverId').value;
+        const user = tg.initDataUnsafe?.user;
+        const customerName = user ? user.first_name : "Customer";
+        
+        const message = `Hello, JM Diamond Shop! 🚀
+Customer: ${customerName}
+I want to order:
+💎 Product: ${selectedProduct}
+💰 Price: ${selectedPrice}
+👤 User ID: ${gid}
+🌐 Server ID: ${sid}
+📝 Player Name: ${currentPlayerName || 'Not Found'}`;
+
+        window.open(`https://t.me/JinMa2000?text=${encodeURIComponent(message)}`, '_blank');
+    }
+</script>
+</body>
+</html>
