@@ -2,118 +2,77 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>JM Diamond Shop</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --primary-purple: #6a1b9a;
-            --accent-gold: #f1c40f;
-            --dark-bg: #1a1a1a;
-            --card-bg: rgba(255, 255, 255, 0.1);
-            --tg-blue: #0088cc;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0; padding: 0; color: white;
-            background: url('https://i.pinimg.com/736x/31/31/6a/31316af172d5c1078ed778a00c51a29c.jpg') no-repeat center center fixed;
+            font-family: 'Segoe UI', sans-serif;
+            color: white;
+            background: url('https://i.pinimg.com/736x/31/31/6a/31316af172d5c1078ed778a00c51a29c.jpg') no-repeat center top fixed;
             background-size: cover;
+            width: 100vw; height: 100vh; overflow-x: hidden;
         }
 
         .container {
-            background: rgba(0, 0, 0, 0.85);
-            min-height: 100vh;
-            padding: 20px;
-            padding-bottom: 100px;
-            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.5); 
+            min-height: 100vh; width: 100%;
+            padding: 15px 15px 120px;
         }
 
-        .header { text-align: center; margin-bottom: 25px; }
+        .header { text-align: center; margin-bottom: 20px; }
         .main-logo {
-            width: 100px; height: 100px; border-radius: 25px;
-            border: 3px solid var(--accent-gold);
-            box-shadow: 0 0 20px rgba(241, 196, 15, 0.5);
+            width: 85px; height: 85px; border-radius: 20px;
+            border: 3px solid #f1c40f; box-shadow: 0 0 15px rgba(241, 196, 15, 0.5);
             object-fit: cover;
         }
 
-        /* ID Input Styling */
-        .id-section { display: flex; gap: 10px; margin-bottom: 10px; }
+        .id-section { display: flex; gap: 8px; margin-bottom: 10px; }
         .id-input {
-            flex: 1; padding: 14px; border-radius: 12px;
-            border: 2px solid var(--primary-purple);
-            background: rgba(255, 255, 255, 0.9);
-            color: #000; font-weight: bold; font-size: 16px;
-            outline: none; text-align: center; transition: 0.3s;
+            flex: 1; padding: 12px; border-radius: 10px;
+            border: 2px solid #6a1b9a; background: rgba(255, 255, 255, 0.95);
+            color: #000; font-weight: bold; font-size: 14px; text-align: center;
         }
-        .id-input:focus { border-color: var(--accent-gold); box-shadow: 0 0 10px var(--accent-gold); }
 
-        /* Name Display */
+        /* Result Display with Country Flag */
         #nameDisplay {
-            text-align: center; margin-bottom: 20px;
-            min-height: 45px; font-weight: bold;
-            text-shadow: 1px 1px 3px black;
-            background: rgba(0,0,0,0.5);
-            padding: 10px; border-radius: 10px;
+            text-align: center; margin-bottom: 15px; padding: 10px;
+            background: rgba(0,0,0,0.7); border-radius: 10px; min-height: 50px;
             border: 1px solid rgba(255,255,255,0.1);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
 
-        .category-title {
-            margin: 25px 0 10px; font-weight: bold;
-            display: flex; align-items: center; gap: 8px;
-            color: var(--accent-gold); font-size: 18px;
-            text-transform: uppercase; letter-spacing: 1px;
+        .promo-warning {
+            background: #f1c40f; color: #000; padding: 12px; border-radius: 8px;
+            font-size: 13px; font-weight: bold; margin-bottom: 15px; text-align: center;
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
         }
 
-        /* Grid & Items */
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        
+        .detail-link { background: #000; color: #f1c40f; padding: 4px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; }
+
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); padding-top: 50px; }
+        .modal-content { background: #222; margin: auto; padding: 20px; width: 85%; border-radius: 15px; text-align: center; border: 2px solid #f1c40f; }
+        .modal-content img { width: 100%; border-radius: 10px; margin-bottom: 15px; }
+        .close-btn { background: #f1c40f; color: #000; padding: 10px 25px; border-radius: 8px; border: none; font-weight: bold; margin-top: 15px; }
+
+        .category-title { margin: 20px 0 10px; color: #f1c40f; font-size: 16px; font-weight: bold; border-left: 4px solid #f1c40f; padding-left: 10px; }
+
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .item {
-            background: var(--card-bg);
-            border: 2px solid transparent;
-            border-radius: 16px; padding: 12px;
-            text-align: center; cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative; overflow: hidden;
+            background: rgba(255, 255, 255, 0.15); border: 2px solid transparent; 
+            border-radius: 12px; padding: 12px 10px; text-align: center; cursor: pointer;
+            backdrop-filter: blur(5px); transition: 0.2s;
         }
-
         .item img { width: 45px; height: 45px; object-fit: contain; margin-bottom: 5px; }
-        .item .name { display: block; font-size: 14px; color: #eee; }
-        .item .price { display: block; font-size: 15px; color: #00ff88; font-weight: bold; margin-top: 4px; }
+        .item .name { display: block; font-size: 13px; font-weight: bold; margin-bottom: 3px; }
+        .item .price { display: block; font-size: 14px; color: #00ff88; font-weight: bold; }
+        .item.active { border-color: #f1c40f; background: rgba(106, 27, 154, 0.4); box-shadow: 0 0 15px #f1c40f; }
 
-        /* ✨ Animation Light Effect ✨ */
-        @keyframes glowing {
-            0% { box-shadow: 0 0 5px #f1c40f, inset 0 0 5px #f1c40f; border-color: #f1c40f; }
-            50% { box-shadow: 0 0 20px #f1c40f, inset 0 0 10px #f1c40f; border-color: #ffeb3b; }
-            100% { box-shadow: 0 0 5px #f1c40f, inset 0 0 5px #f1c40f; border-color: #f1c40f; }
-        }
-
-        .item.active {
-            background: rgba(106, 27, 154, 0.6);
-            animation: glowing 1.5s infinite alternate; /* Light Pulse Animation */
-            transform: scale(1.02);
-        }
-
-        /* Order Button */
-        .btn-order {
-            width: 100%; padding: 18px; border: none;
-            border-radius: 14px; font-size: 18px; font-weight: bold;
-            background: #444; color: #999;
-            margin-top: 30px; cursor: not-allowed;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-        
-        .btn-order.enabled {
-            background: linear-gradient(45deg, #0088cc, #005f8f);
-            color: white; cursor: pointer;
-            box-shadow: 0 0 20px rgba(0, 136, 204, 0.6);
-            animation: popIn 0.3s ease;
-        }
-        
-        @keyframes popIn { 0% { transform: scale(0.9); } 100% { transform: scale(1); } }
-
+        .btn-container { position: fixed; bottom: 0; left: 0; width: 100%; padding: 15px; background: rgba(0,0,0,0.85); z-index: 1000; }
+        .btn-order { width: 100%; padding: 15px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; background: #444; color: #999; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-order.enabled { background: linear-gradient(45deg, #0088cc, #005f8f); color: white; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -121,189 +80,127 @@
 <div class="container">
     <div class="header">
         <img src="https://cdn1.codashop.com/S/content/mobile/images/product-tiles/MLBB-2025-tiles-178x178.jpg" class="main-logo">
-        <h2 style="margin: 10px 0; color: white;">JM Diamond Shop</h2>
+        <h2 style="margin-top:10px;">JM Diamond Shop</h2>
     </div>
 
     <div class="id-section">
         <input type="number" id="gameId" class="id-input" placeholder="User ID" oninput="handleInput()">
-        <input type="number" id="serverId" class="id-input" style="flex: 0.7;" placeholder="Zone ID" oninput="handleInput()">
+        <input type="number" id="serverId" class="id-input" style="flex:0.6;" placeholder="Zone" oninput="handleInput()">
     </div>
     
-    <div id="nameDisplay">
-        <span style="color: #aaa; font-size: 13px;">Please enter ID & Zone to check</span>
+    <div id="nameDisplay"><span>ID နှင့် Zone ကို အရင်ဖြည့်ပါ</span></div>
+
+    <div class="promo-warning">
+        <span>dia2 အကောင့်တခုတခါပဲထည့်လို့ရပါတယ်...</span>
+        <div class="detail-link" onclick="openModal()">[ အသေးစိတ်ကြည့်ရန် ]</div>
     </div>
 
-    <div class="category-title"><i class="fa-solid fa-ticket"></i> Special Passes</div>
-    <div class="grid">
-        <div class="item" onclick="selectItem(this, 'Weekly Pass', '6,100 ks')">
-            <img src="https://img.smile.one/media/catalog/product/1/5q/15qtr79kjv14qfe1691739555.png">
-            <span class="name">Weekly Pass</span>
-            <span class="price">6,100 ks</span>
-        </div>
-        <div class="item" onclick="selectItem(this, 'Twilight Pass', '33,500 ks')">
-            <img src="https://img.smile.one/media/catalog/product/c/8q/c8qibdtmfa4zr181635325478.png">
-            <span class="name">Twilight Pass</span>
-            <span class="price">33,500 ks</span>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5viO_wcfwV_VLFNNfVvd3JJzz7_VJeM7KMw&s">
+            <p>အရင်တုန်းက မထည့်ဖူးတဲ့လူပဲရမယ်နော် သေချာအောင်ကိုယ့်အကောင့်ဒီစာမျက်နာစစ်ကြည့်လို့ရတယ်နော်</p>
+            <button class="close-btn" onclick="closeModal()">OK</button>
         </div>
     </div>
 
-    <div class="category-title"><i class="fa-solid fa-fire"></i> Promo (A+B)</div>
+    <div class="category-title">PROMO (Double Diamonds)</div>
     <div class="grid" id="promoGrid"></div>
 
-    <div class="category-title"><i class="fa-regular fa-gem"></i> Normal Diamonds</div>
+    <div class="category-title">NORMAL DIAMONDS</div>
     <div class="grid" id="diaGrid"></div>
+</div>
 
-    <button id="orderBtn" class="btn-order" disabled>
-        <i class="fa-brands fa-telegram"></i> ဖြည့်ရန် အချက်အလက်လိုနေပါသေးတယ်
-    </button>
+<div class="btn-container">
+    <button id="orderBtn" class="btn-order" disabled><i class="fa-brands fa-telegram"></i> အချက်အလက်ဖြည့်ပါ</button>
 </div>
 
 <script>
-    // --- Configuration ---
-    // သင်ဝယ်ထားသော RapidAPI Key ကို ဤနေရာတွင် ထည့်ပါ
-    const RAPID_API_KEY = 'YOUR_REAL_RAPID_API_KEY_HERE'; 
-    const TELEGRAM_USERNAME = 'JinMa2000'; // သင့် Telegram Username (without @)
+    // ✅ API Key အသစ် အသင့်ထည့်ပေးထားပါသည်
+    const API_KEY = 'ab7d95df0emshbf94ddf5eaaba04p189129jsn9f195b7147fd';
+    const TELEGRAM_USER = 'JinMa2000';
 
-    // --- Data Lists ---
-    const promos = [
-        ["50+50 Diamonds", "3,500 ks"], 
-        ["150+150 Diamonds", "9,900 ks"], 
-        ["250+250 Diamonds", "15,700 ks"], 
-        ["500+500 Diamonds", "31,600 ks"]
+    const promoData = [
+        { n: "50+50 Diamonds", p: "3,500 ks", img: "https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760334222477_bdd28040-0bd9-4dff-b748-ed7b1a0aecdd.png" },
+        { n: "150+150 Diamonds", p: "9,900 ks", img: "https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760334222447_c62c5300-1e1f-4f91-90f4-d677eeb054db.png" },
+        { n: "250+250 Diamonds", p: "15,700 ks", img: "https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760334222415_581d8871-25f1-4a8c-a45c-297bfbc69d6c.png" },
+        { n: "500+500 Diamonds", p: "31,600 ks", img: "https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760334222388_daa6d2f0-0249-4fa5-bb28-5ce48267c1d8.png" }
     ];
 
-    const diamonds = [
-        ["11 Diamonds", "1,100 ks"], ["22 Diamonds", "1,900 ks"], ["56 Diamonds", "4,600 ks"],
-        ["86 Diamonds", "5,300 ks"], ["112 Diamonds", "8,600 ks"], ["172 Diamonds", "10,300 ks"],
-        ["257 Diamonds", "14,900 ks"], ["343 Diamonds", "19,700 ks"], ["429 Diamonds", "24,600 ks"],
-        ["514 Diamonds", "29,600 ks"], ["600 Diamonds", "34,100 ks"], ["706 Diamonds", "39,600 ks"],
-        ["878 Diamonds", "49,600 ks"], ["1049 Diamonds", "59,600 ks"], ["2195 Diamonds", "122,100 ks"],
-        ["3688 Diamonds", "200,100 ks"], ["5532 Diamonds", "299,100 ks"], ["9288 Diamonds", "495,100 ks"]
+    const normalData = [
+        { c: "11 Dia", p: "1,100 ks" }, { c: "22 Dia", p: "1,900 ks" }, { c: "56 Dia", p: "4,600 ks" },
+        { c: "86 Dia", p: "5,300 ks" }, { c: "112 Dia", p: "8,600 ks" }, { c: "172 Dia", p: "10,300 ks" },
+        { c: "257 Dia", p: "14,900 ks" }, { c: "343 Dia", p: "19,700 ks" }, { c: "429 Dia", p: "24,600 ks" },
+        { c: "514 Dia", p: "29,600 ks" }, { c: "600 Dia", p: "34,100 ks" }, { c: "706 Dia", p: "39,600 ks" },
+        { c: "878 Dia", p: "49,600 ks" }, { c: "1049 Dia", p: "59,600 ks" }, { c: "2195 Dia", p: "122,100 ks" },
+        { c: "3688 Dia", p: "200,100 ks" }, { c: "5532 Dia", p: "299,100 ks" }, { c: "9288 Dia", p: "495,100 ks" }
     ];
 
-    let selectedProduct = "";
-    let selectedPrice = "";
-    let playerName = "";
-    let playerCountry = "";
-    let checkTimeout = null;
+    const pileIcon = "https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760335249005_d119a418-95ae-4562-bd62-135e57cf7504.png";
+    const bagIcon = "https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760335244496_8ccf974b-354c-4832-a3f4-c194147570f5.png";
 
-    // --- Rendering Items ---
-    function renderGrid(id, data) {
-        const container = document.getElementById(id);
-        const icon = "https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760335249005_d119a418-95ae-4562-bd62-135e57cf7504.png";
-        data.forEach(d => {
-            container.innerHTML += `
-                <div class="item" onclick="selectItem(this, '${d[0]}', '${d[1]}')">
-                    <img src="${icon}">
-                    <span class="name">${d[0]}</span>
-                    <span class="price">${d[1]}</span>
-                </div>`;
+    function init() {
+        const pg = document.getElementById('promoGrid');
+        promoData.forEach(d => {
+            pg.innerHTML += `<div class="item" onclick="selectItem(this, '${d.n}', '${d.p}')"><img src="${d.img}"><span class="name">${d.n}</span><span class="price">${d.p}</span></div>`;
+        });
+        const dg = document.getElementById('diaGrid');
+        normalData.forEach(d => {
+            let icon = parseInt(d.c) >= 1000 ? bagIcon : pileIcon;
+            dg.innerHTML += `<div class="item" onclick="selectItem(this, '${d.c}', '${d.p}')"><img src="${icon}"><span class="name">${d.c}</span><span class="price">${d.p}</span></div>`;
         });
     }
-    renderGrid('promoGrid', promos);
-    renderGrid('diaGrid', diamonds);
+    init();
 
-    // --- Input Handling (Debounce) ---
-    function handleInput() {
-        validate(); // Update button state
-        
-        // Clear previous timer to prevent too many API calls
-        clearTimeout(checkTimeout);
-        
-        // Wait 1 second after user stops typing
-        checkTimeout = setTimeout(autoCheck, 1000);
-    }
+    function openModal() { document.getElementById('myModal').style.display = 'block'; }
+    function closeModal() { document.getElementById('myModal').style.display = 'none'; }
 
-    // --- RapidAPI Auto Check ---
-    async function autoCheck() {
-        const userId = document.getElementById('gameId').value;
-        const zoneId = document.getElementById('serverId').value;
-        const display = document.getElementById('nameDisplay');
-
-        if (userId.length >= 4 && zoneId.length >= 4) {
-            display.innerHTML = '<span style="color:orange;"><i class="fa-solid fa-spinner fa-spin"></i> Checking ID...</span>';
-            
-            const url = `https://check-id-game.p.rapidapi.com/api/rapid_api/cek_game_ml/${userId}/${zoneId}`;
-            const options = {
-                method: 'GET',
-                headers: {
-                    'x-rapidapi-key': 'ab7d95df0emshbf94ddf5eaaba04p189129jsn9f195b7147fd',
-                    'x-rapidapi-host': 'check-id-game.p.rapidapi.com'
-                }
-            };
-
-            try {
-                const response = await fetch(url, options);
-                
-                if(response.status === 429) {
-                    display.innerHTML = '<span style="color:#ffcc00;">⚠️ API Limit Reached</span>';
-                    return;
-                }
-
-                const result = await response.json();
-
-                if (result.success && result.data && result.data.username) {
-                    playerName = result.data.username;
-                    playerCountry = result.data.country.toLowerCase() === "mm" ? "Myanmar 🇲🇲" : result.data.country;
-                    
-                    display.innerHTML = `
-                        <div style="color: #00ff88; font-size: 16px;">✅ ${playerName}</div>
-                        <div style="color: #f1c40f; font-size: 13px;">🌍 ${playerCountry}</div>
-                    `;
-                } else {
-                    playerName = "";
-                    display.innerHTML = '<span style="color: #ff4d4d;">❌ Account Not Found</span>';
-                }
-            } catch (error) {
-                console.error(error);
-                display.innerHTML = '<span style="color: #ff4d4d;">❌ Connection Error</span>';
-            }
-        } else {
-             display.innerHTML = '<span style="color: #aaa; font-size: 13px;">Please enter ID & Zone to check</span>';
-        }
-        validate(); // Re-validate to update button if name found
-    }
-
-    // --- Item Selection ---
-    function selectItem(el, name, price) {
-        // Remove active class from all items
+    let selP = "", selPr = "", pName = "", pCountry = "";
+    function selectItem(el, n, p) {
         document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
-        
-        // Add active class (Triggers CSS Animation)
-        el.classList.add('active');
-        
-        selectedProduct = name;
-        selectedPrice = price;
+        el.classList.add('active'); selP = n; selPr = p; validate();
+    }
+
+    let timeout = null;
+    function handleInput() {
+        validate();
+        clearTimeout(timeout);
+        timeout = setTimeout(autoCheck, 1200);
+    }
+
+    async function autoCheck() {
+        const id = document.getElementById('gameId').value;
+        const sid = document.getElementById('serverId').value;
+        const display = document.getElementById('nameDisplay');
+        if(id.length < 5 || sid.length < 4) return;
+
+        display.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> စစ်ဆေးနေသည်...';
+        try {
+            const res = await fetch(`https://check-id-game.p.rapidapi.com/api/rapid_api/cek_game_ml/${id}/${sid}`, {
+                headers: { 'x-rapidapi-key': API_KEY, 'x-rapidapi-host': 'check-id-game.p.rapidapi.com' }
+            });
+            const result = await res.json();
+            if(result.success && result.data.username) {
+                pName = result.data.username;
+                pCountry = result.data.country || "MM";
+                display.innerHTML = `<b style="color:#00ff88; font-size:16px;">✅ ${pName}</b><small style="color:#f1c40f">Region: ${pCountry}</small>`;
+            } else {
+                display.innerHTML = '<b style="color:#ff4d4d">❌ ရှာမတွေ့ပါ (ID/Zone မှားနိုင်သည်)</b>';
+            }
+        } catch(e) { display.innerHTML = 'Error!'; }
         validate();
     }
 
-    // --- Validation & Button State ---
     function validate() {
-        const gid = document.getElementById('gameId').value;
-        const sid = document.getElementById('serverId').value;
         const btn = document.getElementById('orderBtn');
-
-        // Check if all conditions are met
-        if(gid.length > 0 && sid.length > 0 && selectedProduct !== "") {
-            btn.removeAttribute('disabled');
-            btn.classList.add('enabled');
-            btn.innerHTML = `<i class="fa-brands fa-telegram"></i> ${selectedPrice} - ဆက်သွယ်ဝယ်ယူမည်`;
-            
-            // Set OnClick Event
+        const id = document.getElementById('gameId').value;
+        const sid = document.getElementById('serverId').value;
+        if(id && sid && selP) {
+            btn.disabled = false; btn.classList.add('enabled'); 
+            btn.innerHTML = `<i class="fa-brands fa-telegram"></i> ဝယ်ယူမည် - ${selPr}`;
             btn.onclick = () => {
-                const finalName = playerName ? playerName : "Checking...";
-                const finalCountry = playerCountry ? playerCountry : "-";
-                
-                const msg = `Hello JM Shop! 🚀\nI want to order:\n\n💎 Item: ${selectedProduct}\n💰 Price: ${selectedPrice}\n\n👤 ID: ${gid} (${sid})\n📝 Name: ${finalName}\n🌍 Region: ${finalCountry}`;
-                
-                // Open Telegram
-                window.open(`https://t.me/${TELEGRAM_USERNAME}?text=${encodeURIComponent(msg)}`, '_blank');
+                const msg = `JM Diamond Shop Order:\n--------------------\nItem: ${selP}\nPrice: ${selPr}\nID: ${id} (${sid})\nName: ${pName || 'Checked'}\nRegion: ${pCountry || '-'}`;
+                window.open(`https://t.me/${TELEGRAM_USER}?text=${encodeURIComponent(msg)}`);
             };
-        } else {
-            btn.setAttribute('disabled', 'true');
-            btn.classList.remove('enabled');
-            btn.innerHTML = `<i class="fa-brands fa-telegram"></i> ဖြည့်ရန် အချက်အလက်လိုနေပါသေးတယ်`;
-            btn.onclick = null;
         }
     }
 </script>
