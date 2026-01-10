@@ -10,66 +10,110 @@
         :root {
             --primary-purple: #6a1b9a;
             --accent-gold: #f1c40f;
-            --dark-overlay: rgba(0, 0, 0, 0.85);
+            --dark-bg: #1a1a1a;
+            --card-bg: rgba(255, 255, 255, 0.1);
             --tg-blue: #0088cc;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0; padding: 0; color: white;
             background: url('https://i.pinimg.com/736x/31/31/6a/31316af172d5c1078ed778a00c51a29c.jpg') no-repeat center center fixed;
             background-size: cover;
-            scroll-behavior: smooth;
         }
 
-        .container { background: var(--dark-overlay); min-height: 100vh; padding: 20px; box-sizing: border-box; padding-bottom: 120px; }
+        .container {
+            background: rgba(0, 0, 0, 0.85);
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 100px;
+            backdrop-filter: blur(5px);
+        }
 
-        .header { text-align: center; margin-bottom: 20px; }
-        .main-logo { width: 110px; height: 110px; border-radius: 25px; border: 3px solid var(--accent-gold); box-shadow: 0 0 20px rgba(241, 196, 15, 0.4); object-fit: cover; }
+        .header { text-align: center; margin-bottom: 25px; }
+        .main-logo {
+            width: 100px; height: 100px; border-radius: 25px;
+            border: 3px solid var(--accent-gold);
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.5);
+            object-fit: cover;
+        }
 
-        .id-section { display: flex; gap: 10px; margin-bottom: 5px; }
+        /* ID Input Styling */
+        .id-section { display: flex; gap: 10px; margin-bottom: 10px; }
         .id-input {
-            flex: 1; padding: 15px; border-radius: 12px; border: 2px solid var(--primary-purple);
-            background: rgba(255, 255, 255, 0.9); color: #333; font-weight: bold; font-size: 16px; outline: none; text-align: center;
+            flex: 1; padding: 14px; border-radius: 12px;
+            border: 2px solid var(--primary-purple);
+            background: rgba(255, 255, 255, 0.9);
+            color: #000; font-weight: bold; font-size: 16px;
+            outline: none; text-align: center; transition: 0.3s;
+        }
+        .id-input:focus { border-color: var(--accent-gold); box-shadow: 0 0 10px var(--accent-gold); }
+
+        /* Name Display */
+        #nameDisplay {
+            text-align: center; margin-bottom: 20px;
+            min-height: 45px; font-weight: bold;
+            text-shadow: 1px 1px 3px black;
+            background: rgba(0,0,0,0.5);
+            padding: 10px; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        #nameDisplay { text-align: center; margin-bottom: 15px; font-weight: bold; min-height: 20px; color: #00ff88; text-shadow: 1px 1px 2px black; }
+        .category-title {
+            margin: 25px 0 10px; font-weight: bold;
+            display: flex; align-items: center; gap: 8px;
+            color: var(--accent-gold); font-size: 18px;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
 
-        .category-title { margin: 25px 0 10px; font-weight: bold; display: flex; align-items: center; gap: 8px; color: var(--accent-gold); border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; font-size: 18px; }
-        
-        .promo-notice { background: rgba(241, 196, 15, 0.15); border-left: 4px solid var(--accent-gold); border-radius: 4px; padding: 12px; margin-bottom: 15px; font-size: 13px; }
-
-        .detail-btn { background: var(--accent-gold); color: black; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; margin-left: 5px; }
-        .promo-img-container { display: none; margin-top: 10px; text-align: center; }
-        .promo-img-container img { width: 100%; border-radius: 8px; border: 1px solid var(--accent-gold); }
-
+        /* Grid & Items */
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .item { background: rgba(255,255,255,0.1); border: 2px solid transparent; border-radius: 15px; padding: 15px; text-align: center; backdrop-filter: blur(8px); transition: 0.3s; }
-        .item.active { border-color: var(--accent-gold); background: rgba(106, 27, 154, 0.6); transform: scale(1.05); box-shadow: 0 0 15px var(--accent-gold); }
-        .item img { width: 45px; height: 45px; margin-bottom: 8px; object-fit: contain; }
-        .item .name { display: block; font-size: 14px; font-weight: bold; }
-        .item .price { color: #00ff88; font-weight: bold; display: block; margin-top: 5px; }
-
-        @keyframes glowing-blue {
-            0% { box-shadow: 0 0 5px #0088cc; transform: scale(1); }
-            50% { box-shadow: 0 0 25px #00eeff; transform: scale(1.02); }
-            100% { box-shadow: 0 0 5px #0088cc; transform: scale(1); }
+        
+        .item {
+            background: var(--card-bg);
+            border: 2px solid transparent;
+            border-radius: 16px; padding: 12px;
+            text-align: center; cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative; overflow: hidden;
         }
 
+        .item img { width: 45px; height: 45px; object-fit: contain; margin-bottom: 5px; }
+        .item .name { display: block; font-size: 14px; color: #eee; }
+        .item .price { display: block; font-size: 15px; color: #00ff88; font-weight: bold; margin-top: 4px; }
+
+        /* ✨ Animation Light Effect ✨ */
+        @keyframes glowing {
+            0% { box-shadow: 0 0 5px #f1c40f, inset 0 0 5px #f1c40f; border-color: #f1c40f; }
+            50% { box-shadow: 0 0 20px #f1c40f, inset 0 0 10px #f1c40f; border-color: #ffeb3b; }
+            100% { box-shadow: 0 0 5px #f1c40f, inset 0 0 5px #f1c40f; border-color: #f1c40f; }
+        }
+
+        .item.active {
+            background: rgba(106, 27, 154, 0.6);
+            animation: glowing 1.5s infinite alternate; /* Light Pulse Animation */
+            transform: scale(1.02);
+        }
+
+        /* Order Button */
         .btn-order {
-            width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 18px; font-weight: bold;
-            background: #444; color: #888; margin-top: 30px; display: flex; align-items: center; justify-content: center; gap: 10px;
-            transition: 0.3s; pointer-events: none;
+            width: 100%; padding: 18px; border: none;
+            border-radius: 14px; font-size: 18px; font-weight: bold;
+            background: #444; color: #999;
+            margin-top: 30px; cursor: not-allowed;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
-        .btn-order.enabled { background: var(--tg-blue); color: white; pointer-events: auto; animation: glowing-blue 2s infinite; }
+        
+        .btn-order.enabled {
+            background: linear-gradient(45deg, #0088cc, #005f8f);
+            color: white; cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 136, 204, 0.6);
+            animation: popIn 0.3s ease;
+        }
+        
+        @keyframes popIn { 0% { transform: scale(0.9); } 100% { transform: scale(1); } }
 
-        /* Modal */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
-        .modal-content { background: #222; margin: 20% auto; padding: 25px; border-radius: 20px; width: 80%; border: 1px solid var(--accent-gold); text-align: center; }
-        .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
-        .m-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
-        .btn-cancel { background: #444; color: white; }
-        .btn-confirm { background: var(--tg-blue); color: white; }
     </style>
 </head>
 <body>
@@ -77,27 +121,19 @@
 <div class="container">
     <div class="header">
         <img src="https://cdn1.codashop.com/S/content/mobile/images/product-tiles/MLBB-2025-tiles-178x178.jpg" class="main-logo">
-        <h1>JM Diamond Shop</h1>
+        <h2 style="margin: 10px 0; color: white;">JM Diamond Shop</h2>
     </div>
 
     <div class="id-section">
-        <input type="number" id="gameId" class="id-input" placeholder="User ID" oninput="checkPlayerName()">
-        <input type="number" id="serverId" class="id-input" style="flex: 0.7;" placeholder="Zone ID" oninput="checkPlayerName()">
+        <input type="number" id="gameId" class="id-input" placeholder="User ID" oninput="handleInput()">
+        <input type="number" id="serverId" class="id-input" style="flex: 0.7;" placeholder="Zone ID" oninput="handleInput()">
     </div>
-    <div id="nameDisplay"></div>
-
-    <div class="category-title">💎 Double Diamond (Promo)</div>
-    <div class="promo-notice">
-        <b>dia2 အကောင့်တခုတခါပဲထည့်လို့ရပါတယ်နော်</b>
-        <button class="detail-btn" onclick="toggleDetails()">အသေးစိတ်ကြည့်ရန် <i class="fa-solid fa-eye"></i></button>
-        <div id="promoDetails" class="promo-img-container">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5viO_wcfwV_VLFNNfVvd3JJzz7_VJeM7KMw&amp;s">
-            <p style="font-size: 11px; color: #ffcc00; margin-top: 10px;">✨ အရင်ကမထည့်ဖူးတဲ့လူပဲရမယ်နော် သေချာအောင်ကိုယ့်အကောင့်ဒီစာမျက်နာစစ်ကြည့်လို့ရတယ်နော် ✨</p>
-        </div>
+    
+    <div id="nameDisplay">
+        <span style="color: #aaa; font-size: 13px;">Please enter ID & Zone to check</span>
     </div>
-    <div class="grid" id="promoGrid"></div>
 
-    <div class="category-title">💎 Special Passes</div>
+    <div class="category-title"><i class="fa-solid fa-ticket"></i> Special Passes</div>
     <div class="grid">
         <div class="item" onclick="selectItem(this, 'Weekly Pass', '6,100 ks')">
             <img src="https://img.smile.one/media/catalog/product/1/5q/15qtr79kjv14qfe1691739555.png">
@@ -111,55 +147,51 @@
         </div>
     </div>
 
-    <div class="category-title">💎 Normal Diamonds</div>
+    <div class="category-title"><i class="fa-solid fa-fire"></i> Promo (A+B)</div>
+    <div class="grid" id="promoGrid"></div>
+
+    <div class="category-title"><i class="fa-regular fa-gem"></i> Normal Diamonds</div>
     <div class="grid" id="diaGrid"></div>
 
-    <button id="orderBtn" class="btn-order">
-        <i class="fa-brands fa-telegram"></i> ဆက်သွယ်ဝယ်ယူမည်
+    <button id="orderBtn" class="btn-order" disabled>
+        <i class="fa-brands fa-telegram"></i> ဖြည့်ရန် အချက်အလက်လိုနေပါသေးတယ်
     </button>
 </div>
 
-<div id="orderModal" class="modal">
-    <div class="modal-content">
-        <h3 style="color: var(--accent-gold);">Confirm Order</h3>
-        <p id="modalText" style="font-size: 14px; text-align: left; line-height: 1.6;"></p>
-        <div class="modal-btns">
-            <button class="m-btn btn-cancel" onclick="closeModal()">Cancel</button>
-            <button class="m-btn btn-confirm" onclick="finalSubmit()">Confirm ✅</button>
-        </div>
-    </div>
-</div>
-
 <script>
+    // --- Configuration ---
+    // သင်ဝယ်ထားသော RapidAPI Key ကို ဤနေရာတွင် ထည့်ပါ
+    const RAPID_API_KEY = 'YOUR_REAL_RAPID_API_KEY_HERE'; 
+    const TELEGRAM_USERNAME = 'JinMa2000'; // သင့် Telegram Username (without @)
+
+    // --- Data Lists ---
+    const promos = [
+        ["50+50 Diamonds", "3,500 ks"], 
+        ["150+150 Diamonds", "9,900 ks"], 
+        ["250+250 Diamonds", "15,700 ks"], 
+        ["500+500 Diamonds", "31,600 ks"]
+    ];
+
+    const diamonds = [
+        ["11 Diamonds", "1,100 ks"], ["22 Diamonds", "1,900 ks"], ["56 Diamonds", "4,600 ks"],
+        ["86 Diamonds", "5,300 ks"], ["112 Diamonds", "8,600 ks"], ["172 Diamonds", "10,300 ks"],
+        ["257 Diamonds", "14,900 ks"], ["343 Diamonds", "19,700 ks"], ["429 Diamonds", "24,600 ks"],
+        ["514 Diamonds", "29,600 ks"], ["600 Diamonds", "34,100 ks"], ["706 Diamonds", "39,600 ks"],
+        ["878 Diamonds", "49,600 ks"], ["1049 Diamonds", "59,600 ks"], ["2195 Diamonds", "122,100 ks"],
+        ["3688 Diamonds", "200,100 ks"], ["5532 Diamonds", "299,100 ks"], ["9288 Diamonds", "495,100 ks"]
+    ];
+
     let selectedProduct = "";
     let selectedPrice = "";
     let playerName = "";
+    let playerCountry = "";
+    let checkTimeout = null;
 
-    function toggleDetails() {
-        const detail = document.getElementById('promoDetails');
-        detail.style.display = detail.style.display === 'block' ? 'none' : 'block';
-    }
-
-    const promos = [["50+50", "3,500 ks"], ["150+150", "9,900 ks"], ["250+250", "15,700 ks"], ["500+500", "31,600 ks"]];
-    
-    // Diamond Prices အကုန်လုံး (မကျန်စေရ)
-    const diamonds = [
-        ["11 Dia", "1,100 ks"], ["22 Dia", "1,900 ks"], ["56 Dia", "4,600 ks"],
-        ["86 Dia", "5,300 ks"], ["112 Dia", "8,600 ks"], ["172 Dia", "10,300 ks"],
-        ["257 Dia", "14,900 ks"], ["343 Dia", "19,700 ks"], ["429 Dia", "24,600 ks"],
-        ["514 Dia", "29,600 ks"], ["600 Dia", "34,100 ks"], ["706 Dia", "39,600 ks"],
-        ["878 Dia", "49,600 ks"], ["1049 Dia", "59,600 ks"], ["2195 Dia", "122,100 ks"],
-        ["3688 Dia", "200,100 ks"], ["5532 Dia", "299,100 ks"], ["9288 Dia", "495,100 ks"]
-    ];
-
-    const lowIcon = "https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760335249005_d119a418-95ae-4562-bd62-135e57cf7504.png";
-    const highIcon = "https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760335247872_f9e8beef-fd2b-46cf-b7fa-99b6132c2e99.png";
-
-    function fillGrid(id, data) {
+    // --- Rendering Items ---
+    function renderGrid(id, data) {
         const container = document.getElementById(id);
+        const icon = "https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760335249005_d119a418-95ae-4562-bd62-135e57cf7504.png";
         data.forEach(d => {
-            const amount = parseInt(d[0]);
-            const icon = amount >= 600 ? highIcon : lowIcon;
             container.innerHTML += `
                 <div class="item" onclick="selectItem(this, '${d[0]}', '${d[1]}')">
                     <img src="${icon}">
@@ -168,62 +200,111 @@
                 </div>`;
         });
     }
+    renderGrid('promoGrid', promos);
+    renderGrid('diaGrid', diamonds);
 
-    fillGrid('promoGrid', promos);
-    fillGrid('diaGrid', diamonds);
+    // --- Input Handling (Debounce) ---
+    function handleInput() {
+        validate(); // Update button state
+        
+        // Clear previous timer to prevent too many API calls
+        clearTimeout(checkTimeout);
+        
+        // Wait 1 second after user stops typing
+        checkTimeout = setTimeout(autoCheck, 1000);
+    }
 
+    // --- RapidAPI Auto Check ---
+    async function autoCheck() {
+        const userId = document.getElementById('gameId').value;
+        const zoneId = document.getElementById('serverId').value;
+        const display = document.getElementById('nameDisplay');
+
+        if (userId.length >= 4 && zoneId.length >= 4) {
+            display.innerHTML = '<span style="color:orange;"><i class="fa-solid fa-spinner fa-spin"></i> Checking ID...</span>';
+            
+            const url = `https://check-id-game.p.rapidapi.com/api/rapid_api/cek_game_ml/${userId}/${zoneId}`;
+            const options = {
+                method: 'GET',
+                headers: {
+                    'x-rapidapi-key': 'ab7d95df0emshbf94ddf5eaaba04p189129jsn9f195b7147fd',
+                    'x-rapidapi-host': 'check-id-game.p.rapidapi.com'
+                }
+            };
+
+            try {
+                const response = await fetch(url, options);
+                
+                if(response.status === 429) {
+                    display.innerHTML = '<span style="color:#ffcc00;">⚠️ API Limit Reached</span>';
+                    return;
+                }
+
+                const result = await response.json();
+
+                if (result.success && result.data && result.data.username) {
+                    playerName = result.data.username;
+                    playerCountry = result.data.country.toLowerCase() === "mm" ? "Myanmar 🇲🇲" : result.data.country;
+                    
+                    display.innerHTML = `
+                        <div style="color: #00ff88; font-size: 16px;">✅ ${playerName}</div>
+                        <div style="color: #f1c40f; font-size: 13px;">🌍 ${playerCountry}</div>
+                    `;
+                } else {
+                    playerName = "";
+                    display.innerHTML = '<span style="color: #ff4d4d;">❌ Account Not Found</span>';
+                }
+            } catch (error) {
+                console.error(error);
+                display.innerHTML = '<span style="color: #ff4d4d;">❌ Connection Error</span>';
+            }
+        } else {
+             display.innerHTML = '<span style="color: #aaa; font-size: 13px;">Please enter ID & Zone to check</span>';
+        }
+        validate(); // Re-validate to update button if name found
+    }
+
+    // --- Item Selection ---
     function selectItem(el, name, price) {
+        // Remove active class from all items
         document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
+        
+        // Add active class (Triggers CSS Animation)
         el.classList.add('active');
+        
         selectedProduct = name;
         selectedPrice = price;
         validate();
-        setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 300);
     }
 
-    async function checkPlayerName() {
-        const gid = document.getElementById('gameId').value;
-        const sid = document.getElementById('serverId').value;
-        const display = document.getElementById('nameDisplay');
-        if (gid.length >= 6 && sid.length >= 4) {
-            display.innerText = "⏳ Checking...";
-            try {
-                const res = await fetch(`https://pizzoshop.com/mlchecker/api.php?id=${gid}&zone=${sid}`);
-                const data = await res.json();
-                playerName = data.name || "";
-                display.innerText = data.name ? "✅ " + data.name : "❌ ID Not Found";
-            } catch (e) { display.innerText = ""; }
-        }
-        validate();
-    }
-
+    // --- Validation & Button State ---
     function validate() {
         const gid = document.getElementById('gameId').value;
         const sid = document.getElementById('serverId').value;
         const btn = document.getElementById('orderBtn');
-        if(gid && sid && selectedProduct) {
+
+        // Check if all conditions are met
+        if(gid.length > 0 && sid.length > 0 && selectedProduct !== "") {
+            btn.removeAttribute('disabled');
             btn.classList.add('enabled');
-            btn.onclick = openModal;
+            btn.innerHTML = `<i class="fa-brands fa-telegram"></i> ${selectedPrice} - ဆက်သွယ်ဝယ်ယူမည်`;
+            
+            // Set OnClick Event
+            btn.onclick = () => {
+                const finalName = playerName ? playerName : "Checking...";
+                const finalCountry = playerCountry ? playerCountry : "-";
+                
+                const msg = `Hello JM Shop! 🚀\nI want to order:\n\n💎 Item: ${selectedProduct}\n💰 Price: ${selectedPrice}\n\n👤 ID: ${gid} (${sid})\n📝 Name: ${finalName}\n🌍 Region: ${finalCountry}`;
+                
+                // Open Telegram
+                window.open(`https://t.me/${TELEGRAM_USERNAME}?text=${encodeURIComponent(msg)}`, '_blank');
+            };
         } else {
+            btn.setAttribute('disabled', 'true');
             btn.classList.remove('enabled');
+            btn.innerHTML = `<i class="fa-brands fa-telegram"></i> ဖြည့်ရန် အချက်အလက်လိုနေပါသေးတယ်`;
+            btn.onclick = null;
         }
-    }
-
-    function openModal() {
-        const gid = document.getElementById('gameId').value;
-        const sid = document.getElementById('serverId').value;
-        document.getElementById('modalText').innerHTML = `<b>Product:</b> ${selectedProduct}<br><b>Price:</b> ${selectedPrice}<br><b>ID:</b> ${gid} (${sid})<br><b>Name:</b> ${playerName || '---'}`;
-        document.getElementById('orderModal').style.display = 'block';
-    }
-
-    function closeModal() { document.getElementById('orderModal').style.display = 'none'; }
-
-    function finalSubmit() {
-        const gid = document.getElementById('gameId').value;
-        const sid = document.getElementById('serverId').value;
-        const msg = `Hello JM Shop! 🚀\nI want to order:\n💎 Product: ${selectedProduct}\n💰 Price: ${selectedPrice}\n👤 ID: ${gid}(${sid})\n📝 Name: ${playerName}`;
-        window.open(`https://t.me/JinMa2000?text=${encodeURIComponent(msg)}`, '_blank');
-        closeModal();
     }
 </script>
 </body>
