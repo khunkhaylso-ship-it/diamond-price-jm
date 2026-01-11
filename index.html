@@ -274,9 +274,13 @@
     async function sendOrder() {
         const orderID = "JM-" + Math.floor(100000 + Math.random() * 900000);
         const tg = window.Telegram.WebApp;
+        const user = tg.initDataUnsafe.user || {};
+        const customerId = user.id || "Unknown";
+
         document.getElementById('loadingOverlay').style.display = 'flex';
         
-        const caption = `🧾 <b>ORDER: ${orderID}</b>\n━━━━━━━━━━━━━━\n🎮 <b>Game ID:</b> ${document.getElementById('gameId').value} (${document.getElementById('serverId').value})\n👤 <b>Name:</b> ${pNm || 'Checked'}\n🌍 <b>Region:</b> ${pCt || 'N/A'}\n\n💎 <b>Item:</b> ${sD}\n💰 <b>Price:</b> ${sP}\n🏦 <b>Pay:</b> ${pMt.toUpperCase()}\n━━━━━━━━━━━━━━`;
+        // Admin ဆီ ပို့မည့် စာသား
+        const caption = `🧾 <b>NEW ORDER: ${orderID}</b>\n━━━━━━━━━━━━━━\n🎮 <b>Game ID:</b> <code>${document.getElementById('gameId').value}</code> (${document.getElementById('serverId').value})\n👤 <b>Name:</b> ${pNm || 'Checked'}\n🌍 <b>Region:</b> ${pCt || 'N/A'}\n\n💎 <b>Item:</b> ${sD}\n💰 <b>Price:</b> ${sP}\n🏦 <b>Pay:</b> ${pMt.toUpperCase()}\n━━━━━━━━━━━━━━\n👤 <b>Customer ID:</b> <code>${customerId}</code>`;
 
         const formData = new FormData();
         formData.append("chat_id", ADMIN_ID);
@@ -284,10 +288,32 @@
         formData.append("caption", caption);
         formData.append("parse_mode", "HTML");
 
+        // Admin အတွက် Confirm / Reject Button များ
+        const keyboard = {
+            inline_keyboard: [
+                [
+                    { text: "✅ Confirm", callback_data: `approve_${customerId}_${orderID}` },
+                    { text: "❌ Reject", callback_data: `reject_${customerId}_${orderID}` }
+                ]
+            ]
+        };
+        formData.append("reply_markup", JSON.stringify(keyboard));
+
         try {
             const r = await fetch(`https://api.telegram.org/bot${BOT_T}/sendPhoto`, { method: 'POST', body: formData });
             if(r.ok) {
-                tg.showAlert(`✅ Order Successful!\nID: ${orderID}\n\n၁၅ မိနစ်အတွင်း စိန်ထည့်ပေးပါမည်။ ကျေးဇူးတင်ပါသည်။`);
+                // Customer ဆီ Order တင်အောင်မြင်ကြောင်း Bot က စာပို့ခြင်း
+                await fetch(`https://api.telegram.org/bot${BOT_T}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: customerId,
+                        text: `✅ <b>Order တင်ခြင်းအောင်မြင်ပါသည်!</b>\n\nID: <b>${orderID}</b>\nပစ္စည်း: <b>${sD}</b>\n\nAdmin မှ စစ်ဆေးပြီးပါက စိန်ထည့်သွင်းပေးသွားမည် ဖြစ်ပါသည်။ ကျေးဇူးတင်ပါသည်။`,
+                        parse_mode: "HTML"
+                    })
+                });
+
+                tg.showAlert(`✅ Order Successful!\nID: ${orderID}\n\nခဏအတွင်း စိန်ထည့်ပေးပါမည်။`);
                 tg.close();
             }
         } catch (e) { alert("Error!"); }
