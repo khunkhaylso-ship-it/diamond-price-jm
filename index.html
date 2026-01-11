@@ -277,10 +277,17 @@
         const user = tg.initDataUnsafe.user || {};
         const customerId = user.id || "Unknown";
 
+        // လက်ရှိအချိန် (Myanmar Time) ယူရန်
+        const now = new Date();
+        const orderTime = now.toLocaleString('en-GB', { hour12: true });
+
         document.getElementById('loadingOverlay').style.display = 'flex';
         
+        const gId = document.getElementById('gameId').value;
+        const sId = document.getElementById('serverId').value;
+
         // Admin ဆီ ပို့မည့် စာသား
-        const caption = `🧾 <b>NEW ORDER: ${orderID}</b>\n━━━━━━━━━━━━━━\n🎮 <b>Game ID:</b> <code>${document.getElementById('gameId').value}</code> (${document.getElementById('serverId').value})\n👤 <b>Name:</b> ${pNm || 'Checked'}\n🌍 <b>Region:</b> ${pCt || 'N/A'}\n\n💎 <b>Item:</b> ${sD}\n💰 <b>Price:</b> ${sP}\n🏦 <b>Pay:</b> ${pMt.toUpperCase()}\n━━━━━━━━━━━━━━\n👤 <b>Customer ID:</b> <code>${customerId}</code>`;
+        const caption = `🧾 <b>NEW ORDER: ${orderID}</b>\n━━━━━━━━━━━━━━\n🎮 <b>Game ID:</b> <code>${gId}</code> (${sId})\n👤 <b>Name:</b> ${pNm || 'Checked'}\n🌍 <b>Region:</b> ${pCt || 'N/A'}\n\n💎 <b>Item:</b> ${sD}\n💰 <b>Price:</b> ${sP}\n🏦 <b>Pay:</b> ${pMt.toUpperCase()}\n📅 <b>Time:</b> ${orderTime}\n━━━━━━━━━━━━━━\n👤 <b>Customer ID:</b> <code>${customerId}</code>`;
 
         const formData = new FormData();
         formData.append("chat_id", ADMIN_ID);
@@ -288,27 +295,24 @@
         formData.append("caption", caption);
         formData.append("parse_mode", "HTML");
 
-        // Admin အတွက် Confirm / Reject Button များ
         const keyboard = {
-            inline_keyboard: [
-                [
-                    { text: "✅ Confirm", callback_data: `approve_${customerId}_${orderID}` },
-                    { text: "❌ Reject", callback_data: `reject_${customerId}_${orderID}` }
-                ]
-            ]
+            inline_keyboard: [[
+                { text: "✅ Confirm", callback_data: `approve_${customerId}_${orderID}` },
+                { text: "❌ Reject", callback_data: `reject_${customerId}_${orderID}` }
+            ]]
         };
         formData.append("reply_markup", JSON.stringify(keyboard));
 
         try {
             const r = await fetch(`https://api.telegram.org/bot${BOT_T}/sendPhoto`, { method: 'POST', body: formData });
             if(r.ok) {
-                // Customer ဆီ Order တင်အောင်မြင်ကြောင်း Bot က စာပို့ခြင်း
+                // Customer ဆီ အချက်အလက်အပြည့်အစုံဖြင့် စာပြန်ပို့ခြင်း
                 await fetch(`https://api.telegram.org/bot${BOT_T}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         chat_id: customerId,
-                        text: `✅ <b>Order တင်ခြင်းအောင်မြင်ပါသည်!</b>\n\nID: <b>${orderID}</b>\nပစ္စည်း: <b>${sD}</b>\n\nAdmin မှ စစ်ဆေးပြီးပါက စိန်ထည့်သွင်းပေးသွားမည် ဖြစ်ပါသည်။ ကျေးဇူးတင်ပါသည်။`,
+                        text: `✅ <b>Order တင်ခြင်းအောင်မြင်ပါသည်!</b>\n\n🆔 <b>Order ID:</b> ${orderID}\n🎮 <b>Game ID:</b> ${gId} (${sId})\n🌍 <b>Region:</b> ${pCt || 'N/A'}\n💎 <b>ပစ္စည်း:</b> ${sD}\n💰 <b>ကျသင့်ငွေ:</b> ${sP}\n📅 <b>အချိန်:</b> ${orderTime}\n\nAdmin မှ စစ်ဆေးပြီးပါက စိန်ထည့်သွင်းပေးသွားမည် ဖြစ်ပါသည်။ ကျေးဇူးတင်ပါသည်။`,
                         parse_mode: "HTML"
                     })
                 });
