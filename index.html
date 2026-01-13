@@ -336,10 +336,30 @@
         try {
             const r = await fetch(`https://api.telegram.org/bot${BOT_T}/sendPhoto`, { method: 'POST', body: formData });
             if(r.ok) {
-                await fetch(`https://api.telegram.org/bot${BOT_T}/sendMessage`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({chat_id: customerId, text: `✅ <b>Order တင်ပြီးပါပြီ!</b>\n\nID: ${orderID}\nပစ္စည်း: ${sD}\nAdmin မှ စစ်ဆေးပြီးပါက စိန်ထည့်ပေးပါမည်။`, parse_mode: "HTML"}) });
-                tg.showAlert("Order တင်ခြင်း အောင်မြင်ပါသည်။"); tg.close();
+                // လက်ရှိအချိန်ကို 11/01/2026, 10:37:27 pm ပုံစံမျိုး ရယူခြင်း
+                const orderTime = new Date().toLocaleString('en-GB', { 
+                    day: '2-digit', month: '2-digit', year: 'numeric', 
+                    hour: '2-digit', minute: '2-digit', second: '2-digit', 
+                    hour12: true 
+                }).toLowerCase().replace(',', '');
+
+                // Customer ဆီသို့ အချက်အလက်အပြည့်အစုံဖြင့် Message ပို့ခြင်း
+                await fetch(`https://api.telegram.org/bot${BOT_T}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: customerId,
+                        text: `⌛ <b>Order တင်ခြင်းအောင်မြင်ပါသည်!</b>\n\n🆔 <b>ID:</b> ${orderID}\n🎮 <b>Game ID:</b> ${gId} [${sId || ''}]\n🌍 <b>Region:</b> Myanmar 🇲🇲\n💎 <b>ပစ္စည်း:</b> ${sD}\n📅 <b>Time:</b> ${orderTime}\n\nAdmin မှ စစ်ဆေးပြီးပါက ${activeG === 'PUBG' ? 'UC' : 'စိန်'}ထည့်သွင်းပေးသွားမည် ဖြစ်ပါသည်။ ကျေးဇူးတင်ပါသည်။`,
+                        parse_mode: "HTML"
+                    })
+                });
+
+                tg.showAlert(`✅ Order Successful!\nID: ${orderID}`); 
+                tg.close();
             }
-        } catch(e) { alert("Error!"); }
+        } catch(e) { 
+            alert("Error: " + e.message); 
+        }
         document.getElementById('loadingOverlay').style.display = 'none';
     }
 </script>
