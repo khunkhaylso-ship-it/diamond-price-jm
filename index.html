@@ -336,20 +336,30 @@
         try {
             const r = await fetch(`https://api.telegram.org/bot${BOT_T}/sendPhoto`, { method: 'POST', body: formData });
             if(r.ok) {
-                // လက်ရှိအချိန်ကို 11/01/2026, 10:37:27 pm ပုံစံမျိုး ရယူခြင်း
+                // အချိန် Format ရယူခြင်း
                 const orderTime = new Date().toLocaleString('en-GB', { 
                     day: '2-digit', month: '2-digit', year: 'numeric', 
                     hour: '2-digit', minute: '2-digit', second: '2-digit', 
                     hour12: true 
                 }).toLowerCase().replace(',', '');
 
-                // Customer ဆီသို့ အချက်အလက်အပြည့်အစုံဖြင့် Message ပို့ခြင်း
+                let successText = "";
+
+                if (activeG === 'PUBG') {
+                    // --- PUBG UC အတွက် (Region မပါ၊ Name ပါ) ---
+                    successText = `⌛ <b>Order တင်ခြင်းအောင်မြင်ပါသည်!</b>\n\n🆔 <b>ID:</b> ${orderID}\n🎮 <b>Game ID:</b> ${gId}\n👤 <b>Name:</b> ${pNm || 'N/A'}\n💎 <b>ပစ္စည်း:</b> ${sD}\n📅 <b>Time:</b> ${orderTime}\n\nAdmin မှ စစ်ဆေးပြီးပါက UC ထည့်သွင်းပေးသွားမည် ဖြစ်ပါသည်။ ကျေးဇူးတင်ပါသည်။`;
+                } else {
+                    // --- MLBB စိန်အတွက် (Region အဟောင်းအတိုင်း ပါဝင်မည်) ---
+                    successText = `⌛ <b>Order တင်ခြင်းအောင်မြင်ပါသည်!</b>\n\n🆔 <b>ID:</b> ${orderID}\n🎮 <b>Game ID:</b> ${gId} (${sId})\n🌍 <b>Region:</b> ${pCt || 'Myanmar 🇲🇲'}\n💎 <b>ပစ္စည်း:</b> ${sD}\n📅 <b>Time:</b> ${orderTime}\n\nAdmin မှ စစ်ဆေးပြီးပါက စိန်ထည့်သွင်းပေးသွားမည် ဖြစ်ပါသည်။ ကျေးဇူးတင်ပါသည်။`;
+                }
+
+                // Customer ဆီသို့ Message ပို့ခြင်း
                 await fetch(`https://api.telegram.org/bot${BOT_T}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         chat_id: customerId,
-                        text: `⌛ <b>Order တင်ခြင်းအောင်မြင်ပါသည်!</b>\n\n🆔 <b>ID:</b> ${orderID}\n🎮 <b>Game ID:</b> ${gId} [${sId || ''}]\n🌍 <b>Region:</b> Myanmar 🇲🇲\n💎 <b>ပစ္စည်း:</b> ${sD}\n📅 <b>Time:</b> ${orderTime}\n\nAdmin မှ စစ်ဆေးပြီးပါက ${activeG === 'PUBG' ? 'UC' : 'စိန်'}ထည့်သွင်းပေးသွားမည် ဖြစ်ပါသည်။ ကျေးဇူးတင်ပါသည်။`,
+                        text: successText,
                         parse_mode: "HTML"
                     })
                 });
