@@ -3,226 +3,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JM Diamond Shop</title>
+    <title>JM Game Shop</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        /* --- General Setup --- */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body {
-            font-family: 'Segoe UI', sans-serif; color: white;
-            background: url('https://i.pinimg.com/736x/31/31/6a/31316af172d5c1078ed778a00c51a29c.jpg') no-repeat center top fixed;
-            background-size: cover; width: 100vw; min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            background-color: #000;
+            background-image: url('https://i.pinimg.com/736x/e3/d5/03/e3d503ffbdbf4413bbc2c795a989e489.jpg');
+            background-size: cover; background-position: center; background-attachment: fixed;
+            width: 100vw; min-height: 100vh;
+            transition: background-image 0.8s ease-in-out;
         }
+
+        /* --- RGB Glow Animation --- */
+        @keyframes rgbCycle {
+            0% { border-color: #ff0000; box-shadow: 0 0 12px #ff0000; }
+            25% { border-color: #00ff00; box-shadow: 0 0 12px #00ff00; }
+            50% { border-color: #0000ff; box-shadow: 0 0 12px #0000ff; }
+            75% { border-color: #ffff00; box-shadow: 0 0 12px #ffff00; }
+            100% { border-color: #ff00ff; box-shadow: 0 0 12px #ff00ff; }
+        }
+
+        /* --- 1. Splash Screen --- */
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .splash-logo {
+            width: 120px; height: 120px; border-radius: 50%;
+            border: 3px solid #f1c40f; box-shadow: 0 0 20px rgba(241, 196, 15, 0.4);
+            margin-bottom: 15px; object-fit: cover;
+        }
+
+        /* --- Layout --- */
+        .bg-spacer { height: 20vh; width: 100%; }
+
+        /* --- 2. Menu Screen --- */
+        #menu-screen {
+            display: none; flex-direction: column; align-items: center;
+            min-height: 100vh; width: 100%;
+            background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.85) 25%);
+        }
+        .menu-title { font-size: 18px; font-weight: bold; color: #f1c40f; margin-bottom: 25px; letter-spacing: 2px; }
+        .game-btn {
+            display: flex; align-items: center; width: 88%; max-width: 350px; height: 80px;
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 18px; margin-bottom: 15px;
+            cursor: pointer; padding: 10px; transition: 0.3s;
+        }
+        .game-icon { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; }
+        .game-info { flex: 1; padding-left: 15px; }
+
+        /* --- 3. Shop Screen --- */
         .container {
-            background: rgba(0, 0, 0, 0.7); min-height: 100vh; width: 100%;
-            padding: 15px 15px 140px;
+            display: none; width: 100%; min-height: 100vh;
+            background: linear-gradient(to bottom, transparent 0%, rgba(10, 10, 10, 0.96) 20%);
+            padding: 0 15px 140px;
         }
-        .header { text-align: center; margin-bottom: 20px; }
-        .main-logo {
-            width: 90px; height: 90px; border-radius: 50%;
-            border: 3px solid #f1c40f; box-shadow: 0 0 15px rgba(241, 196, 15, 0.5); object-fit: cover;
+        .shop-header {
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(255,255,255,0.08); padding: 10px 15px;
+            border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 15px;
         }
-
-        /* ID Input Section */
-        .id-section { display: flex; gap: 8px; margin-bottom: 10px; }
-        .id-input {
-            flex: 1; padding: 12px; border-radius: 10px;
-            border: 2px solid #6a1b9a; background: rgba(255, 255, 255, 0.95);
-            color: #000; font-weight: bold; font-size: 14px; text-align: center;
+        .shop-logo-small { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid #f1c40f; object-fit: cover; }
+        
+        .id-group { display: flex; gap: 10px; margin-bottom: 10px; }
+        .input-box {
+            flex: 1; padding: 14px; border-radius: 12px;
+            background: rgba(0,0,0,0.5); border: 2px solid #333;
+            color: #fff; text-align: center; font-size: 14px; outline: none;
         }
-        #nameDisplay {
-            text-align: center; margin-bottom: 15px; padding: 10px;
-            background: rgba(0,0,0,0.6); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);
-            min-height: 50px; display: flex; align-items: center; justify-content: center;
-        }
+        #nameDisplay { min-height: 25px; text-align: center; font-size: 13px; color: #00ff88; margin-bottom: 15px; }
 
-        /* Promo Alert Box */
-        .promo-banner {
-            background: #f1c40f; color: #000; padding: 12px; border-radius: 10px;
-            font-size: 13px; font-weight: bold; margin-bottom: 20px; text-align: center;
-            display: flex; flex-direction: column; align-items: center; gap: 5px;
-        }
-        .detail-btn { background: #000; color: #f1c40f; padding: 4px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; }
-
-        /* Modal Popup */
-        .modal { display: none; position: fixed; z-index: 5000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); padding-top: 50px; }
-        .modal-content { background: #222; margin: auto; padding: 20px; width: 85%; border-radius: 15px; text-align: center; border: 2px solid #f1c40f; }
-        .modal-content img { width: 100%; border-radius: 10px; margin-bottom: 15px; }
-        .modal-content p { font-size: 14px; line-height: 1.6; color: #fff; margin-bottom: 15px; }
-        .close-btn { background: #f1c40f; color: #000; padding: 10px 25px; border-radius: 8px; border: none; font-weight: bold; }
-
-        /* Titles with New Icons */
-        .section-title { color: #f1c40f; font-weight: bold; margin: 25px 0 10px; border-left: 4px solid #f1c40f; padding-left: 10px; display: flex; align-items: center; gap: 10px; text-transform: uppercase; font-size: 14px; }
-        .title-icon { height: 24px; width: auto; object-fit: contain; }
-
-        /* Grid Styling */
+        /* Categorized Items */
+        .cat-label { color: #f1c40f; font-size: 12px; font-weight: bold; margin: 20px 0 10px; display: flex; align-items: center; gap: 8px; }
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .item {
-            background: rgba(255, 255, 255, 0.12); border: 2px solid transparent; 
-            border-radius: 12px; padding: 15px 10px; text-align: center; cursor: pointer; position: relative;
+        .item-card {
+            background: rgba(255, 255, 255, 0.05); border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px; padding: 12px 8px; text-align: center; cursor: pointer; transition: 0.3s;
         }
-        .item.active { border-color: #f1c40f; background: rgba(106, 27, 154, 0.5); }
-        .item img { width: 50px; height: 50px; object-fit: contain; margin-bottom: 8px; }
-        .item .name { display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; }
-        .item .price { display: block; font-size: 14px; color: #00ff88; font-weight: bold; }
-        .promo-tag { position: absolute; top: 0; right: 0; background: #f1c40f; color: #000; font-size: 9px; padding: 2px 6px; border-bottom-left-radius: 8px; font-weight: bold; }
+        .item-card.active { animation: rgbCycle 3s infinite linear; background: rgba(255, 255, 255, 0.15); }
+        .item-card img { width: 35px; margin-bottom: 6px; }
+        .item-name { font-size: 11px; font-weight: bold; color: #eee; display: block; margin-bottom: 3px; }
+        .item-price { font-size: 13px; font-weight: bold; color: #00ff88; display: block; }
 
-        /* Payment & Upload */
-        .pay-card { flex: 1; background: rgba(255,255,255,0.1); border: 2px solid transparent; border-radius: 12px; padding: 10px; text-align: center; cursor: pointer; }
-        .pay-card.active { border-color: #00ff88; background: rgba(0, 255, 136, 0.1); }
-        .pay-info { background: #222; padding: 15px; border-radius: 10px; margin-top: 10px; display: none; text-align: center; border: 1px solid #444; }
-        .upload-box { background: rgba(255,255,255,0.1); border: 2px dashed #999; border-radius: 12px; padding: 20px; text-align: center; margin-top: 15px; cursor: pointer; }
+        /* Payment Details Box */
+        #payment-details {
+            display: none; background: rgba(241, 196, 15, 0.1); border: 1px solid #f1c40f;
+            border-radius: 12px; padding: 15px; margin-top: 15px; text-align: center;
+        }
+        .pay-number { font-size: 18px; font-weight: bold; color: #f1c40f; display: block; margin: 5px 0; }
+        .pay-name { font-size: 13px; color: #fff; opacity: 0.8; }
+
+        .pay-row { display: flex; gap: 10px; margin-top: 10px; }
+        .pay-box { flex: 1; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px; text-align: center; border: 1.5px solid transparent; cursor: pointer; }
+        .pay-box.active { border-color: #00ff88; background: rgba(0,255,136,0.1); }
+        .pay-logo { width: 30px; border-radius: 6px; margin-bottom: 4px; }
+
+        .upload-area { border: 2px dashed #444; border-radius: 15px; padding: 20px; text-align: center; margin-top: 15px; background: rgba(0,0,0,0.2); }
         #previewImg { width: 100%; border-radius: 10px; margin-top: 10px; display: none; }
 
-        /* Order Button */
-        .btn-container { position: fixed; bottom: 0; left: 0; width: 100%; padding: 15px; background: rgba(0,0,0,0.9); z-index: 1000; }
-        .btn-order { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; background: #444; color: #aaa; }
-        .btn-order.enabled { background: linear-gradient(45deg, #0088cc, #005f8f); color: white; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 136, 204, 0.4); }
+        .footer { position: fixed; bottom: 0; left: 0; width: 100%; padding: 15px; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 1000; }
+        .main-btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; background: #333; color: #777; transition: 0.3s; }
+        .main-btn.active { background: linear-gradient(45deg, #f1c40f, #e67e22); color: #000; }
 
-        #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #f1c40f; border-radius: 50%; animation: spin 1s linear infinite; }
+        #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #333; border-top: 4px solid #f1c40f; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div id="loadingOverlay">
-    <div class="spinner"></div>
-    <p style="color:white; margin-top:15px;">Order တင်နေပါသည်...</p>
+<div id="splash-screen">
+    <img src="https://scontent.fbkk19-1.fna.fbcdn.net/v/t39.30808-1/540641345_122132544716926701_3529674997104008223_n.jpg?stp=c127.127.770.770a_dst-jpg_s480x480_tt6&_nc_cat=101&ccb=1-7&_nc_sid=2d3e12&_nc_eui2=AeEyUYCM9fgkCJOPDT8Y11b3AFvGIzNHcU8AW8YjM0dxT7pZN6q9FY2hIrHRQ1vmTngz9OO9NU7rgZKO9H2hOEEK&_nc_ohc=n7lweNGiaywQ7kNvwFBGEcL&_nc_oc=AdmqEjjoIMEtzfi8UPlT1FnDNp8vL6PpSsA4gUiSu454Sg6_cyos4c6BZw6h-lhJTXs&_nc_zt=24&_nc_ht=scontent.fbkk19-1.fna&_nc_gid=n4tSHU4C8QLf-5Za7p0mBQ&oh=00_Afo6BU3BSfVxcEW0V1YiM4ukiZeMWaRrR-9PYi9LLvzHGQ&oe=69692DEC" class="splash-logo">
+    <p style="color: #f1c40f; letter-spacing: 2px; font-weight: bold;">JM GAME SHOP</p>
 </div>
 
-<div id="detailModal" class="modal">
-    <div class="modal-content">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5viO_wcfwV_VLFNNfVvd3JJzz7_VJeM7KMw&s">
-        <p>အရင်တုန်းကမထည့်ဖူးတဲ့လူပဲရမယ်နော် သေချာအောင်ကိုယ့်အကောင့်ဒီစာမျက်နာစစ်ကြည့်လို့ရတယ်နော်</p>
-        <button class="close-btn" onclick="closeModal()">နားလည်ပါပြီ</button>
+<div id="menu-screen">
+    <div class="bg-spacer"></div>
+    <div class="menu-title">SELECT GAME</div>
+    <div class="game-btn" onclick="loadShop('PUBG')">
+        <img src="https://cdn1.codashop.com/S/content/mobile/images/product-tiles/pubgm_tile_aug2024.jpg" class="game-icon">
+        <div class="game-info"><span class="game-name">PUBG MOBILE</span></div>
+    </div>
+    <div class="game-btn" onclick="loadShop('MLBB')">
+        <img src="https://cdn1.codashop.com/S/content/mobile/images/product-tiles/MLBB-2025-tiles-178x178.jpg" class="game-icon">
+        <div class="game-info"><span class="game-name">MOBILE LEGENDS</span></div>
     </div>
 </div>
 
-<div class="container">
-    <div class="header">
-        <img src="https://scontent.fbkk19-1.fna.fbcdn.net/v/t39.30808-1/540641345_122132544716926701_3529674997104008223_n.jpg?stp=c127.127.770.770a_dst-jpg_s480x480_tt6&_nc_cat=101&ccb=1-7&_nc_sid=2d3e12&_nc_eui2=AeEyUYCM9fgkCJOPDT8Y11b3AFvGIzNHcU8AW8YjM0dxT7pZN6q9FY2hIrHRQ1vmTngz9OO9NU7rgZKO9H2hOEEK&_nc_ohc=n7lweNGiaywQ7kNvwFBGEcL&_nc_oc=AdmqEjjoIMEtzfi8UPlT1FnDNp8vL6PpSsA4gUiSu454Sg6_cyos4c6BZw6h-lhJTXs&_nc_zt=24&_nc_ht=scontent.fbkk19-1.fna&_nc_gid=n4tSHU4C8QLf-5Za7p0mBQ&oh=00_Afo6BU3BSfVxcEW0V1YiM4ukiZeMWaRrR-9PYi9LLvzHGQ&oe=69692DEC" class="main-logo">
-        <h2 style="margin-top:10px; letter-spacing: 1px;">JM Game Shop</h2>
+<div class="container" id="shop-screen">
+    <div class="bg-spacer"></div>
+    <div class="shop-header">
+        <i class="fa-solid fa-arrow-left" onclick="goBack()" style="cursor:pointer; color:#f1c40f;"></i>
+        <img class="shop-logo-small" src="https://scontent.fbkk19-1.fna.fbcdn.net/v/t39.30808-1/540641345_122132544716926701_3529674997104008223_n.jpg?stp=c127.127.770.770a_dst-jpg_s480x480_tt6&_nc_cat=101&ccb=1-7&_nc_sid=2d3e12&_nc_eui2=AeEyUYCM9fgkCJOPDT8Y11b3AFvGIzNHcU8AW8YjM0dxT7pZN6q9FY2hIrHRQ1vmTngz9OO9NU7rgZKO9H2hOEEK&_nc_ohc=n7lweNGiaywQ7kNvwFBGEcL&_nc_oc=AdmqEjjoIMEtzfi8UPlT1FnDNp8vL6PpSsA4gUiSu454Sg6_cyos4c6BZw6h-lhJTXs&_nc_zt=24&_nc_ht=scontent.fbkk19-1.fna&_nc_gid=n4tSHU4C8QLf-5Za7p0mBQ&oh=00_Afo6BU3BSfVxcEW0V1YiM4ukiZeMWaRrR-9PYi9LLvzHGQ&oe=69692DEC">
+        <span id="shop-title" style="font-weight:bold;">Shop</span>
     </div>
 
-    <div class="id-section">
-        <input type="number" id="gameId" class="id-input" placeholder="User ID" oninput="handleInput()">
-        <input type="number" id="serverId" class="id-input" style="flex:0.6;" placeholder="Zone" oninput="handleInput()">
+    <div class="id-group">
+        <input type="number" id="gameId" class="input-box" placeholder="User ID" oninput="handleInput()">
+        <input type="number" id="serverId" class="input-box" style="flex:0.6; display:none;" placeholder="Zone" oninput="handleInput()">
     </div>
-    <div id="nameDisplay"><span>ID နှင့် Zone ကို ဖြည့်ပါ</span></div>
+    <div id="nameDisplay"></div>
 
-    <div class="promo-banner">
-        <span>dia2 အကောင့်တခုတခါပဲထည့်လို့ရပါတယ်...</span>
-        <div class="detail-btn" onclick="openModal()">[ အသေးစိတ်ကြည့်ရန် ]</div>
-    </div>
+    <div id="dynamicItems"></div>
 
-    <div class="section-title">
-        <img src="https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_f66aebb8ede7c159b2dfc46c2cd00201_category/1741854799644_dcbce7aa-7d85-4e79-ad45-6aed78fcda56.png" class="title-icon">
-        WEEKLY PASS
-    </div>
-    <div class="grid">
-        <div class="item" style="grid-column: span 2;" onclick="selectItem(this, 'Weekly Diamond Pass', '6,100 ks')">
-            <img src="https://img.smile.one/media/catalog/product/1/5q/15qtr79kjv14qfe1691739555.png">
-            <span class="name">Weekly Diamond Pass</span>
-            <span class="price">6,100 ks</span>
+    <div class="cat-label">Payment Method</div>
+    <div class="pay-row">
+        <div class="pay-box" onclick="selectPayment('kpay', '09759777632', 'Sai kwam khay')">
+            <img src="https://www.kbzpay.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fblue-L.c7123311.webp&w=64&q=75" class="pay-logo"><br>KPay
+        </div>
+        <div class="pay-box" onclick="selectPayment('wave', '09759777632', 'Sai kwam khay')">
+            <img src="https://play-lh.googleusercontent.com/rPq4GMCZy12WhwTlanEu7RzxihYCgYevQHVHLNha1VcY5SU1uLKHMd060b4VEV1r-OQ=s48-rw" class="pay-logo"><br>Wave
         </div>
     </div>
 
-    <div class="section-title">
-        <img src="https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_f66aebb8ede7c159b2dfc46c2cd00201_category/1741855988497_29e54ddd-04b0-48f2-8567-dd2e7a99d872.png" class="title-icon">
-        DOUBLE BONUS (PROMO)
-    </div>
-    <div class="grid" id="promoGrid"></div>
-
-    <div class="section-title">💎 NORMAL DIAMONDS</div>
-    <div class="grid" id="diaGrid"></div>
-
-    <div class="section-title">💳 PAYMENT METHOD</div>
-    <div style="display:flex; gap:10px;">
-        <div class="pay-card" onclick="selectPayment('kpay')">
-            <img src="https://www.kbzpay.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fblue-L.c7123311.webp&w=64&q=75" style="width:40px; border-radius:8px;">
-            <div style="font-size:12px; font-weight:bold; margin-top:5px;">KPay</div>
-        </div>
-        <div class="pay-card" onclick="selectPayment('wave')">
-            <img src="https://play-lh.googleusercontent.com/rPq4GMCZy12WhwTlanEu7RzxihYCgYevQHVHLNha1VcY5SU1uLKHMd060b4VEV1r-OQ=s48-rw" style="width:40px; border-radius:8px;">
-            <div style="font-size:12px; font-weight:bold; margin-top:5px;">WavePay</div>
-        </div>
+    <div id="payment-details">
+        <span id="pay-method-name" style="font-weight:bold; color:#fff;">KPay နံပါတ်</span>
+        <span class="pay-number" id="display-pay-num">09759777632</span>
+        <span class="pay-name" id="display-pay-name">Name: Sai kwam khay</span>
     </div>
 
-    <div id="payDetails" class="pay-info">
-        <div id="payTitle" style="color:#00ff88; margin-bottom:5px; font-weight:bold;"></div>
-        <b style="font-size:18px;">09759777632</b>
-        <div style="color:#aaa; font-size:12px; margin-top:5px;">Name: Sai kwan khay</div>
-    </div>
-
-    <div class="section-title">🧾 UPLOAD SCREENSHOT</div>
-    <div class="upload-box" onclick="document.getElementById('fileInput').click()">
-        <i class="fa-solid fa-image" style="font-size:20px; color:#aaa;"></i>
-        <div id="uploadText" style="font-size:12px; color:#999; margin-top:5px;">ငွေလွှဲပြေစာ တင်ရန် နှိပ်ပါ</div>
+    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+        <i class="fa-solid fa-camera" style="font-size:20px; color:#666; margin-bottom:5px;"></i>
+        <div id="uploadText" style="font-size:11px; color:#aaa;">ငွေလွှဲ Screenshot တင်ရန်</div>
         <img id="previewImg">
         <input type="file" id="fileInput" accept="image/*" onchange="previewFile()" style="display:none;">
     </div>
 </div>
 
-<div class="btn-container">
-    <button id="orderBtn" class="btn-order" disabled>အချက်အလက်များကို ဖြည့်စွက်ပါ</button>
+<div class="footer" id="footerBar" style="display:none;">
+    <button id="orderBtn" class="main-btn">အချက်အလက်များ ဖြည့်ပါ</button>
 </div>
+
+<div id="loadingOverlay"><div class="spinner"></div></div>
 
 <script>
     const API_KEY = 'ab7d95df0emshbf94ddf5eaaba04p189129jsn9f195b7147fd';
     const BOT_T = "7677213934:AAEUQt0DA2nQs2GTJZa9hPDiB3n83tuxo_s";
     const ADMIN_ID = "1820840235";
 
-    const promos = [
-        { c: "50+50 Bonus", p: "3,500 ks" }, { c: "150+150 Bonus", p: "9,900 ks" },
-        { c: "250+250 Bonus", p: "15,700 ks" }, { c: "500+500 Bonus", p: "31,600 ks" }
+    setTimeout(() => { document.getElementById('splash-screen').style.display = 'none'; document.getElementById('menu-screen').style.display = 'flex'; }, 2000);
+
+    // --- MLBB & PUBG Data ---
+    const mlData = {
+        weekly: { n: "Weekly Pass", p: "6,100 ks", icon: "https://img.smile.one/media/catalog/product/1/5q/15qtr79kjv14qfe1691739555.png" },
+        promo: [
+            {n:"50+50 Bonus", p:"3,500 ks"}, {n:"150+150 Bonus", p:"9,900 ks"},
+            {n:"250+250 Bonus", p:"15,700 ks"}, {n:"500+500 Bonus", p:"31,600 ks"}
+        ],
+        normal: [
+            {n:"11 Dia",p:"1,100 ks"},{n:"22 Dia",p:"1,900 ks"},{n:"56 Dia",p:"4,600 ks"},
+            {n:"86 Dia",p:"5,300 ks"},{n:"112 Dia",p:"8,600 ks"},{n:"172 Dia",p:"10,300 ks"},
+            {n:"257 Dia",p:"14,900 ks"},{n:"343 Dia",p:"19,700 ks"},{n:"429 Dia",p:"24,600 ks"},
+            {n:"514 Dia",p:"29,600 ks"},{n:"600 Dia",p:"34,100 ks"},{n:"706 Dia",p:"39,600 ks"},
+            {n:"878 Dia",p:"49,600 ks"},{n:"1049 Dia",p:"59,600 ks"},{n:"2195 Dia",p:"122,100 ks"},
+            {n:"3688 Dia",p:"200,100 ks"},{n:"5532 Dia",p:"299,100 ks"},{n:"9288 Dia",p:"495,100 ks"}
+        ]
+    };
+
+    const pubgData = [
+        {n:"60 UC",p:"4,100 ks"},{n:"120 UC",p:"8,100 ks"},{n:"180 UC",p:"12,100 ks"},
+        {n:"240 UC",p:"16,100 ks"},{n:"325 UC",p:"20,100 ks"},{n:"660 UC",p:"39,600 ks"},
+        {n:"1800 UC",p:"99,100 ks"},{n:"3850 UC",p:"196,100 ks"},{n:"8100 UC",p:"388,100 ks"}
     ];
 
-    const normal = [
-        { c: "11 Dia", p: "1,100 ks" }, { c: "22 Dia", p: "1,900 ks" }, { c: "56 Dia", p: "4,600 ks" },
-        { c: "86 Dia", p: "5,300 ks" }, { c: "112 Dia", p: "8,600 ks" }, { c: "172 Dia", p: "10,300 ks" },
-        { c: "257 Dia", p: "14,900 ks" }, { c: "343 Dia", p: "19,700 ks" }, { c: "429 Dia", p: "24,600 ks" },
-        { c: "514 Dia", p: "29,600 ks" }, { c: "600 Dia", p: "34,100 ks" }, { c: "706 Dia", p: "39,600 ks" },
-        { c: "878 Dia", p: "49,600 ks" }, { c: "1049 Dia", p: "59,600 ks" }, { c: "2195 Dia", p: "122,100 ks" },
-        { c: "3688 Dia", p: "200,100 ks" }, { c: "5532 Dia", p: "299,100 ks" }, { c: "9288 Dia", p: "495,100 ks" }
-    ];
+    let activeG = "", sD = "", sP = "", pNm = "", pMt = "";
 
-    const pg = document.getElementById('promoGrid');
-    const dg = document.getElementById('diaGrid');
-    const b_ico = "https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760334222477_bdd28040-0bd9-4dff-b748-ed7b1a0aecdd.png";
-    const d_ico = "https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760335249005_d119a418-95ae-4562-bd62-135e57cf7504.png";
+    function loadShop(g) {
+        activeG = g;
+        const container = document.getElementById('dynamicItems');
+        container.innerHTML = "";
+        document.getElementById('menu-screen').style.display = 'none';
+        document.getElementById('shop-screen').style.display = 'block';
+        document.getElementById('footerBar').style.display = 'block';
 
-    promos.forEach(x => {
-        pg.innerHTML += `<div class="item" onclick="selectItem(this, '${x.c}', '${x.p}')">
-            <div class="promo-tag">x2 Bonus</div><img src="${b_ico}"><span class="name">${x.c}</span><span class="price">${x.p}</span></div>`;
-    });
+        if (g === 'MLBB') {
+            document.body.style.backgroundImage = "url('https://i.pinimg.com/736x/3f/70/30/3f70302038628c40b6346be202c88d37.jpg')";
+            document.getElementById('shop-title').innerText = "MOBILE LEGENDS";
+            document.getElementById('serverId').style.display = 'block';
 
-    normal.forEach(x => {
-        dg.innerHTML += `<div class="item" onclick="selectItem(this, '${x.c}', '${x.p}')">
-            <img src="${d_ico}"><span class="name">${x.c}</span><span class="price">${x.p}</span></div>`;
-    });
+            // Weekly
+            container.innerHTML += `<div class="cat-label">Weekly Pass</div><div class="grid"><div class="item-card" style="grid-column: span 2;" onclick="selectItem(this,'${mlData.weekly.n}','${mlData.weekly.p}')"><img src="${mlData.weekly.icon}"><br><span class="item-name">${mlData.weekly.n}</span><span class="item-price">${mlData.weekly.p}</span></div></div>`;
+            
+            // Double Diamond Promo
+            let bth = `<div class="cat-label">Double Diamond (Promo)</div><div class="grid">`;
+            mlData.promo.forEach(i => bth += `<div class="item-card" onclick="selectItem(this,'${i.n}','${i.p}')"><img src="https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760334222477_bdd28040-0bd9-4dff-b748-ed7b1a0aecdd.png"><br><span class="item-name">${i.n}</span><span class="item-price">${i.p}</span></div>`);
+            container.innerHTML += bth + "</div>";
 
-    let sD = "", sP = "", pNm = "", pMt = "", pCt = "";
-    function openModal() { document.getElementById('detailModal').style.display = 'block'; }
-    function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
-    
-    function selectItem(el, c, p) {
-        document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
-        el.classList.add('active'); sD = c; sP = p; validate();
+            // Normal Diamonds
+            let nth = `<div class="cat-label">Diamonds</div><div class="grid">`;
+            mlData.normal.forEach(i => nth += `<div class="item-card" onclick="selectItem(this,'${i.n}','${i.p}')"><img src="https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760335249005_d119a418-95ae-4562-bd62-135e57cf7504.png"><br><span class="item-name">${i.n}</span><span class="item-price">${i.p}</span></div>`);
+            container.innerHTML += nth + "</div>";
+        } else {
+            document.body.style.backgroundImage = "url('https://i.pinimg.com/736x/73/6c/39/736c3979a02d2a369cec2a50b45666cb.jpg')";
+            document.getElementById('shop-title').innerText = "PUBG MOBILE UC";
+            document.getElementById('serverId').style.display = 'none';
+            let pth = `<div class="cat-label">PUBG Mobile UC (All Server)</div><div class="grid">`;
+            pubgData.forEach(i => pth += `<div class="item-card" onclick="selectItem(this,'${i.n}','${i.p}')"><img src="https://img.smile.one/media/catalog/product/n/an/nan0ugwrgqjkjmi1611217417.png"><br><span class="item-name">${i.n}</span><span class="item-price">${i.p}</span></div>`);
+            container.innerHTML += pth + "</div>";
+        }
     }
 
-    function selectPayment(mt) {
+    function selectItem(el, n, p) {
+        document.querySelectorAll('.item-card').forEach(i => i.classList.remove('active'));
+        el.classList.add('active'); sD = n; sP = p; validate();
+    }
+
+    function selectPayment(mt, num, name) {
         pMt = mt;
-        document.querySelectorAll('.pay-card').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.pay-box').forEach(i => i.classList.remove('active'));
         event.currentTarget.classList.add('active');
-        document.getElementById('payDetails').style.display = 'block';
-        document.getElementById('payTitle').innerText = mt === 'kpay' ? 'KBZ Pay' : 'Wave Pay';
+        document.getElementById('payment-details').style.display = 'block';
+        document.getElementById('pay-method-name').innerText = mt.toUpperCase() + " နံပါတ်";
+        document.getElementById('display-pay-num').innerText = num;
+        document.getElementById('display-pay-name').innerText = "Name - " + name;
         validate();
-    }
-
-    function formatCountry(code) {
-        const list = { "MM": "Myanmar 🇲🇲", "ID": "Indonesia 🇮🇩", "TH": "Thailand 🇹🇭", "PH": "Philippines 🇵🇭", "MY": "Malaysia 🇲🇾", "SG": "Singapore 🇸🇬", "KH": "Cambodia 🇰🇭" };
-        return list[code.toUpperCase()] || code;
     }
 
     function previewFile() {
@@ -230,100 +272,74 @@
         if (file) {
             const reader = new FileReader();
             reader.onload = (e) => { 
-                const preview = document.getElementById('previewImg');
-                preview.src = e.target.result; preview.style.display = "block"; 
-                document.getElementById('uploadText').style.display = "none";
+                document.getElementById('previewImg').src = e.target.result; 
+                document.getElementById('previewImg').style.display = "block"; 
+                document.getElementById('uploadText').style.display = "none"; 
             }
             reader.readAsDataURL(file);
         }
         validate();
     }
 
-    let timeout = null;
-    function handleInput() { validate(); clearTimeout(timeout); timeout = setTimeout(autoCheck, 1200); }
+    let timer = null;
+    function handleInput() { validate(); clearTimeout(timer); timer = setTimeout(checkID, 1200); }
 
-    async function autoCheck() {
+    async function checkID() {
         const id = document.getElementById('gameId').value;
         const sid = document.getElementById('serverId').value;
-        const resBox = document.getElementById('nameDisplay');
-        if(id.length < 5 || sid.length < 4) return;
-        resBox.innerHTML = 'စစ်ဆေးနေသည်...';
+        if(!id || id.length < 5) return;
+        document.getElementById('nameDisplay').innerText = "Checking...";
         try {
-            const res = await fetch(`https://check-id-game.p.rapidapi.com/api/rapid_api/cek_game_ml/${id}/${sid}`, {
-                headers: { 'x-rapidapi-key': API_KEY, 'x-rapidapi-host': 'check-id-game.p.rapidapi.com' }
-            });
+            const url = activeG === 'PUBG' ? `https://check-id-game.p.rapidapi.com/api/rapid_api/cekpubgmobile/${id}` : `https://check-id-game.p.rapidapi.com/api/rapid_api/cek_game_ml/${id}/${sid}`;
+            const res = await fetch(url, { headers: { 'x-rapidapi-key': API_KEY, 'x-rapidapi-host': 'check-id-game.p.rapidapi.com' } });
             const data = await res.json();
-            if(data.success) { 
-                pNm = data.data.username; pCt = formatCountry(data.data.country);
-                resBox.innerHTML = `<div style="text-align:center;"><b style="color:#00ff88; font-size:16px;">✅ ${pNm}</b><br><span style="color:#ccc; font-size:12px;">${pCt}</span></div>`;
-            } else { resBox.innerHTML = '<b style="color:#ff4d4d">❌ Player Not Found</b>'; }
-        } catch(e) { resBox.innerHTML = 'Error Check ID'; }
+            if(data.success) { pNm = data.data.username || data.data.name; document.getElementById('nameDisplay').innerText = `✅ ${pNm}`; }
+            else { document.getElementById('nameDisplay').innerText = "❌ ID Not Found"; }
+        } catch(e) { document.getElementById('nameDisplay').innerText = "Network Error"; }
         validate();
     }
 
     function validate() {
         const btn = document.getElementById('orderBtn');
-        const file = document.getElementById('fileInput').files.length > 0;
-        if(document.getElementById('gameId').value && sD && pMt && file) {
-            btn.disabled = false; btn.classList.add('enabled');
-            btn.innerText = `Confirm Order - ${sP}`;
-            btn.onclick = sendOrder;
+        const hasFile = document.getElementById('fileInput').files.length > 0;
+        if(document.getElementById('gameId').value && sD && pMt && hasFile) { 
+            btn.classList.add('active'); btn.innerText = `CONFIRM - ${sP}`; btn.onclick = sendOrder; 
+        } else { 
+            btn.classList.remove('active'); btn.innerText = "အချက်အလက်များ ဖြည့်ပါ"; btn.onclick = null; 
         }
+    }
+
+    function goBack() {
+        document.body.style.backgroundImage = "url('https://i.pinimg.com/736x/e3/d5/03/e3d503ffbdbf4413bbc2c795a989e489.jpg')";
+        document.getElementById('menu-screen').style.display = 'flex';
+        document.getElementById('shop-screen').style.display = 'none';
+        document.getElementById('footerBar').style.display = 'none';
     }
 
     async function sendOrder() {
         const orderID = "JM-" + Math.floor(100000 + Math.random() * 900000);
-        const tg = window.Telegram.WebApp;
-        const user = tg.initDataUnsafe.user || {};
-        const customerId = user.id || "Unknown";
-
-        // လက်ရှိအချိန်ကို မြန်မာစံတော်ချိန်ဖြင့် ယူခြင်း
-        const now = new Date();
-        const orderTime = now.toLocaleString('en-GB', { hour12: true });
-
         document.getElementById('loadingOverlay').style.display = 'flex';
-        
+        const tg = window.Telegram.WebApp;
+        const customerId = (tg.initDataUnsafe.user || {}).id || "Unknown";
         const gId = document.getElementById('gameId').value;
         const sId = document.getElementById('serverId').value;
 
-        // Admin ဆီ ပို့မည့် အချက်အလက်
-        const caption = `🧾 <b>NEW ORDER: ${orderID}</b>\n━━━━━━━━━━━━━━\n🎮 <b>Game ID:</b> <code>${gId}</code> (${sId})\n👤 <b>Name:</b> ${pNm || 'N/A'}\n🌍 <b>Region:</b> ${pCt || 'N/A'}\n\n💎 <b>Item:</b> ${sD}\n💰 <b>Price:</b> ${sP}\n📅 <b>Time:</b> ${orderTime}\n━━━━━━━━━━━━━━\n👤 <b>Customer ID:</b> <code>${customerId}</code>`;
+        const caption = `🧾 <b>NEW ORDER: ${orderID}</b>\n━━━━━━━━━━━━━━\n🎮 <b>Game:</b> ${activeG}\n🆔 <b>ID:</b> <code>${gId} ${sId ? '('+sId+')' : ''}</code>\n👤 <b>Name:</b> ${pNm || 'N/A'}\n💎 <b>Item:</b> ${sD}\n💰 <b>Price:</b> ${sP}\n🏦 <b>Pay:</b> ${pMt.toUpperCase()}`;
 
         const formData = new FormData();
         formData.append("chat_id", ADMIN_ID);
         formData.append("photo", document.getElementById('fileInput').files[0]);
         formData.append("caption", caption);
         formData.append("parse_mode", "HTML");
-
-        const keyboard = {
-            inline_keyboard: [[
-                { text: "✅ Confirm", callback_data: `approve_${customerId}_${orderID}` },
-                { text: "❌ Reject", callback_data: `reject_${customerId}_${orderID}` }
-            ]]
-        };
-        formData.append("reply_markup", JSON.stringify(keyboard));
+        formData.append("reply_markup", JSON.stringify({inline_keyboard: [[{text:"✅ Confirm", callback_data:`approve_${customerId}_${orderID}`},{text:"❌ Reject", callback_data:`reject_${customerId}_${orderID}`}]]}));
 
         try {
             const r = await fetch(`https://api.telegram.org/bot${BOT_T}/sendPhoto`, { method: 'POST', body: formData });
-            
             if(r.ok) {
-                // Customer ဆီ သင်အလိုရှိသော ပုံစံအတိုင်း စာပြန်ပို့ခြင်း
-                await fetch(`https://api.telegram.org/bot${BOT_T}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: customerId,
-                        text: `⌛ <b>Order တင်ခြင်းအောင်မြင်ပါသည်!</b>\n\n🆔 <b>ID:</b> <code>${orderID}</code>\n🎮 <b>Game ID:</b> <code>${gId}</code> [${sId}]\n🌍 <b>Region:</b> ${pCt || 'N/A'}\n💎 <b>ပစ္စည်း:</b> ${sD}\n📅 <b>Time:</b> ${orderTime}\n\nAdmin မှ စစ်ဆေးပြီးပါက စိန်ထည့်သွင်းပေးသွားမည် ဖြစ်ပါသည်။ ကျေးဇူးတင်ပါသည်။`,
-                        parse_mode: "HTML"
-                    })
-                });
-
-                tg.showAlert(`✅ Order Successful!\nID: ${orderID}`);
-                tg.close();
+                await fetch(`https://api.telegram.org/bot${BOT_T}/sendMessage`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({chat_id: customerId, text: `✅ <b>Order တင်ပြီးပါပြီ!</b>\n\nID: ${orderID}\nပစ္စည်း: ${sD}\nAdmin မှ စစ်ဆေးပြီးပါက စိန်ထည့်ပေးပါမည်။`, parse_mode: "HTML"}) });
+                tg.showAlert("Order တင်ခြင်း အောင်မြင်ပါသည်။"); tg.close();
             }
-        } catch (e) {
-            alert("Error sending order!");
-        }
+        } catch(e) { alert("Error!"); }
         document.getElementById('loadingOverlay').style.display = 'none';
     }
 </script>
