@@ -318,60 +318,81 @@
 
     async function sendOrder() {
         const orderID = "JM-" + Math.floor(100000 + Math.random() * 900000);
-        document.getElementById('loadingOverlay').style.display = 'flex';
         const tg = window.Telegram.WebApp;
-        const customerId = (tg.initDataUnsafe.user || {}).id || "Unknown";
+        const user = tg.initDataUnsafe.user || {};
+        const customerId = user.id || "Unknown";
+
+        // လက်ရှိအချိန်ကို 14/01/2026 10:12:27 pm ပုံစံမျိုး ရယူခြင်း
+        const orderTime = new Date().toLocaleString('en-GB', { 
+            day: '2-digit', month: '2-digit', year: 'numeric', 
+            hour: '2-digit', minute: '2-digit', second: '2-digit', 
+            hour12: true 
+        }).toLowerCase().replace(',', '');
+
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        
         const gId = document.getElementById('gameId').value;
         const sId = document.getElementById('serverId').value;
 
-        const caption = `🧾 <b>NEW ORDER: ${orderID}</b>\n━━━━━━━━━━━━━━\n🎮 <b>Game:</b> ${activeG}\n🆔 <b>ID:</b> <code>${gId} ${sId ? '('+sId+')' : ''}</code>\n👤 <b>Name:</b> ${pNm || 'N/A'}\n💎 <b>Item:</b> ${sD}\n💰 <b>Price:</b> ${sP}\n🏦 <b>Pay:</b> ${pMt.toUpperCase()}`;
+        // --- Error မတက်အောင် Variable များကို စစ်ဆေးခြင်း ---
+        const gameType = activeG; // MLBB သို့မဟုတ် PUBG
+        const playerName = typeof pNm !== 'undefined' ? pNm : 'N/A';
+        const regionInfo = typeof pCt !== 'undefined' ? pCt : 'Myanmar 🇲🇲';
+        const itemLabel = gameType === 'PUBG' ? 'UC' : 'စိန်';
+
+        // Admin ဆီ ပို့မည့် စာသား (PUBG အတွက် Region ဖြုတ်ထားသည်)
+        let adminCaption = `🧾 <b>NEW ORDER: ${orderID}</b>\n━━━━━━━━━━━━━━\n🎮 <b>Game:</b> ${gameType}\n🆔 <b>ID:</b> <code>${gId}</code> ${sId ? '('+sId+')' : ''}\n👤 <b>Name:</b> ${playerName}\n`;
+        if (gameType !== 'PUBG') {
+            adminCaption += `🌍 <b>Region:</b> ${regionInfo}\n`;
+        }
+        adminCaption += `\n💎 <b>Item:</b> ${sD}\n💰 <b>Price:</b> ${sP}\n🏦 <b>Pay:</b> ${pMt.toUpperCase()}\n📅 <b>Time:</b> ${orderTime}\n━━━━━━━━━━━━━━\n👤 <b>Cust ID:</b> <code>${customerId}</code>`;
 
         const formData = new FormData();
         formData.append("chat_id", ADMIN_ID);
         formData.append("photo", document.getElementById('fileInput').files[0]);
-        formData.append("caption", caption);
+        formData.append("caption", adminCaption);
         formData.append("parse_mode", "HTML");
-        formData.append("reply_markup", JSON.stringify({inline_keyboard: [[{text:"✅ Confirm", callback_data:`approve_${customerId}_${orderID}`},{text:"❌ Reject", callback_data:`reject_${customerId}_${orderID}`}]]}));
+        formData.append("reply_markup", JSON.stringify({
+            inline_keyboard: [[
+                { text: "✅ Confirm", callback_data: `approve_${customerId}_${orderID}` },
+                { text: "❌ Reject", callback_data: `reject_${customerId}_${orderID}` }
+            ]]
+        }));
 
         try {
             const r = await fetch(`https://api.telegram.org/bot${BOT_T}/sendPhoto`, { method: 'POST', body: formData });
             if(r.ok) {
-                // အချိန် Format ရယူခြင်း
-                const orderTime = new Date().toLocaleString('en-GB', { 
-                    day: '2-digit', month: '2-digit', year: 'numeric', 
-                    hour: '2-digit', minute: '2-digit', second: '2-digit', 
-                    hour12: true 
-                }).toLowerCase().replace(',', '');
-
-                let successText = "";
-
-                if (activeG === 'PUBG') {
-                    // --- PUBG UC အတွက် (Region မပါ၊ Name ပါ) ---
-                    successText = `⌛ <b>Order တင်ခြင်းအောင်မြင်ပါသည်!</b>\n\n🆔 <b>ID:</b> ${orderID}\n🎮 <b>Game ID:</b> ${gId}\n👤 <b>Name:</b> ${pNm || 'N/A'}\n💎 <b>ပစ္စည်း:</b> ${sD}\n📅 <b>Time:</b> ${orderTime}\n\nAdmin မှ စစ်ဆေးပြီးပါက UC ထည့်သွင်းပေးသွားမည် ဖြစ်ပါသည်။ ကျေးဇူးတင်ပါသည်။`;
+                // --- Customer ဆီသို့ ပို့မည့် စာသား (PUBG/MLBB ခွဲခြားထားသည်) ---
+                let customerText = `⌛ <b>Order တင်ခြင်းအောင်မြင်ပါသည်!</b>\n\n🆔 <b>ID:</b> ${orderID}\n🎮 <b>Game ID:</b> ${gId} ${sId ? '['+sId+']' : ''}\n`;
+                
+                if (gameType === 'PUBG') {
+                    customerText += `👤 <b>Name:</b> ${playerName}\n`;
                 } else {
-                    // --- MLBB စိန်အတွက် (Region အဟောင်းအတိုင်း ပါဝင်မည်) ---
-                    successText = `⌛ <b>Order တင်ခြင်းအောင်မြင်ပါသည်!</b>\n\n🆔 <b>ID:</b> ${orderID}\n🎮 <b>Game ID:</b> ${gId} (${sId})\n🌍 <b>Region:</b> ${pCt || 'Myanmar 🇲🇲'}\n💎 <b>ပစ္စည်း:</b> ${sD}\n📅 <b>Time:</b> ${orderTime}\n\nAdmin မှ စစ်ဆေးပြီးပါက စိန်ထည့်သွင်းပေးသွားမည် ဖြစ်ပါသည်။ ကျေးဇူးတင်ပါသည်။`;
+                    customerText += `🌍 <b>Region:</b> ${regionInfo}\n`;
                 }
 
-                // Customer ဆီသို့ Message ပို့ခြင်း
+                customerText += `💎 <b>ပစ္စည်း:</b> ${sD}\n📅 <b>Time:</b> ${orderTime}\n\nAdmin မှ စစ်ဆေးပြီးပါက ${itemLabel}ထည့်သွင်းပေးသွားမည် ဖြစ်ပါသည်။ ကျေးဇူးတင်ပါသည်။`;
+
                 await fetch(`https://api.telegram.org/bot${BOT_T}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         chat_id: customerId,
-                        text: successText,
+                        text: customerText,
                         parse_mode: "HTML"
                     })
                 });
 
-                tg.showAlert(`✅ Order Successful!\nID: ${orderID}`); 
+                tg.showAlert(`✅ Order Successful!\nID: ${orderID}`);
                 tg.close();
             }
-        } catch(e) { 
-            alert("Error: " + e.message); 
+        } catch (e) { 
+            console.error(e);
+            alert("Order ပို့ရာတွင် အမှားအယွင်းရှိနေပါသည်။"); 
         }
         document.getElementById('loadingOverlay').style.display = 'none';
     }
+    
 </script>
 </body>
 </html>
