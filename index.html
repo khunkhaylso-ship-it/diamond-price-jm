@@ -40,7 +40,7 @@
             margin-bottom: 15px; object-fit: cover;
         }
 
-        /* --- Layout --- */
+        /* Layout */
         .bg-spacer { height: 20vh; width: 100%; }
 
         /* --- 2. Menu Screen --- */
@@ -160,7 +160,7 @@
             <img src="https://www.kbzpay.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fblue-L.c7123311.webp&w=64&q=75" class="pay-logo"><br>KPay
         </div>
         <div class="pay-box" onclick="selectPayment('wave', '09759777632', 'Sai kwam khay')">
-            <img src="https://play-lh.googleusercontent.com/rPq4GMCZy12WhwTlanEu7RzxihYCgYevQHVHLNha1VcY5SU1uLKHMd060b4VEV1r-OQ=s48-rw" class="pay-logo"><br>Wave
+            <img src="https://play-lh.googleusercontent.com/rPq4GMCZy12WhwTlanEu7RzxihYCgYevQHVHLNha1VcY5SU1uLKHMd060b4VEV1r-OQ=s48-rw"><br>Wave
         </div>
     </div>
 
@@ -189,9 +189,14 @@
     const BOT_T = "7677213934:AAEUQt0DA2nQs2GTJZa9hPDiB3n83tuxo_s";
     const ADMIN_ID = "1820840235";
 
-    setTimeout(() => { document.getElementById('splash-screen').style.display = 'none'; document.getElementById('menu-screen').style.display = 'flex'; }, 2000);
+    setTimeout(() => { 
+        document.getElementById('splash-screen').style.display = 'none'; 
+        document.getElementById('menu-screen').style.display = 'flex'; 
+    }, 2000);
 
-    // --- MLBB & PUBG Data ---
+    // Global Variables
+    let activeG = "", sD = "", sP = "", pNm = "N/A", pMt = "", pCt = "Myanmar 🇲🇲";
+
     const mlData = {
         weekly: { n: "Weekly Pass", p: "6,100 ks", icon: "https://img.smile.one/media/catalog/product/1/5q/15qtr79kjv14qfe1691739555.png" },
         promo: [
@@ -214,8 +219,6 @@
         {n:"1800 UC",p:"99,100 ks"},{n:"3850 UC",p:"196,100 ks"},{n:"8100 UC",p:"388,100 ks"}
     ];
 
-    let activeG = "", sD = "", sP = "", pNm = "", pMt = "";
-
     function loadShop(g) {
         activeG = g;
         const container = document.getElementById('dynamicItems');
@@ -229,15 +232,12 @@
             document.getElementById('shop-title').innerText = "MOBILE LEGENDS";
             document.getElementById('serverId').style.display = 'block';
 
-            // Weekly
             container.innerHTML += `<div class="cat-label">Weekly Pass</div><div class="grid"><div class="item-card" style="grid-column: span 2;" onclick="selectItem(this,'${mlData.weekly.n}','${mlData.weekly.p}')"><img src="${mlData.weekly.icon}"><br><span class="item-name">${mlData.weekly.n}</span><span class="item-price">${mlData.weekly.p}</span></div></div>`;
             
-            // Double Diamond Promo
             let bth = `<div class="cat-label">Double Diamond (Promo)</div><div class="grid">`;
             mlData.promo.forEach(i => bth += `<div class="item-card" onclick="selectItem(this,'${i.n}','${i.p}')"><img src="https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760334222477_bdd28040-0bd9-4dff-b748-ed7b1a0aecdd.png"><br><span class="item-name">${i.n}</span><span class="item-price">${i.p}</span></div>`);
             container.innerHTML += bth + "</div>";
 
-            // Normal Diamonds
             let nth = `<div class="cat-label">Diamonds</div><div class="grid">`;
             mlData.normal.forEach(i => nth += `<div class="item-card" onclick="selectItem(this,'${i.n}','${i.p}')"><img src="https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760335249005_d119a418-95ae-4562-bd62-135e57cf7504.png"><br><span class="item-name">${i.n}</span><span class="item-price">${i.p}</span></div>`);
             container.innerHTML += nth + "</div>";
@@ -249,11 +249,14 @@
             pubgData.forEach(i => pth += `<div class="item-card" onclick="selectItem(this,'${i.n}','${i.p}')"><img src="https://img.smile.one/media/catalog/product/n/an/nan0ugwrgqjkjmi1611217417.png"><br><span class="item-name">${i.n}</span><span class="item-price">${i.p}</span></div>`);
             container.innerHTML += pth + "</div>";
         }
+        validate();
     }
 
     function selectItem(el, n, p) {
         document.querySelectorAll('.item-card').forEach(i => i.classList.remove('active'));
-        el.classList.add('active'); sD = n; sP = p; validate();
+        el.classList.add('active'); 
+        sD = n; sP = p; 
+        validate();
     }
 
     function selectPayment(mt, num, name) {
@@ -293,19 +296,33 @@
             const url = activeG === 'PUBG' ? `https://check-id-game.p.rapidapi.com/api/rapid_api/cekpubgmobile/${id}` : `https://check-id-game.p.rapidapi.com/api/rapid_api/cek_game_ml/${id}/${sid}`;
             const res = await fetch(url, { headers: { 'x-rapidapi-key': API_KEY, 'x-rapidapi-host': 'check-id-game.p.rapidapi.com' } });
             const data = await res.json();
-            if(data.success) { pNm = data.data.username || data.data.name; document.getElementById('nameDisplay').innerText = `✅ ${pNm}`; }
-            else { document.getElementById('nameDisplay').innerText = "❌ ID Not Found"; }
-        } catch(e) { document.getElementById('nameDisplay').innerText = "Network Error"; }
+            if(data.success) { 
+                pNm = data.data.username || data.data.name; 
+                pCt = data.data.region || "Myanmar 🇲🇲";
+                document.getElementById('nameDisplay').innerText = `✅ ${pNm}`; 
+            }
+            else { 
+                document.getElementById('nameDisplay').innerText = "❌ ID Not Found"; 
+                pNm = "Unknown";
+            }
+        } catch(e) { 
+            document.getElementById('nameDisplay').innerText = "Network Error"; 
+        }
         validate();
     }
 
     function validate() {
         const btn = document.getElementById('orderBtn');
         const hasFile = document.getElementById('fileInput').files.length > 0;
-        if(document.getElementById('gameId').value && sD && pMt && hasFile) { 
-            btn.classList.add('active'); btn.innerText = `CONFIRM - ${sP}`; btn.onclick = sendOrder; 
+        const hasId = document.getElementById('gameId').value.length >= 5;
+        if(hasId && sD && pMt && hasFile) { 
+            btn.classList.add('active'); 
+            btn.innerText = `CONFIRM - ${sP}`; 
+            btn.onclick = sendOrder; 
         } else { 
-            btn.classList.remove('active'); btn.innerText = "အချက်အလက်များ ဖြည့်ပါ"; btn.onclick = null; 
+            btn.classList.remove('active'); 
+            btn.innerText = "အချက်အလက်များ ဖြည့်ပါ"; 
+            btn.onclick = null; 
         }
     }
 
@@ -317,61 +334,61 @@
     }
 
     async function sendOrder() {
-        const orderID = "JM-" + Math.floor(100000 + Math.random() * 900000);
-        const tg = window.Telegram.WebApp;
-        const user = tg.initDataUnsafe.user || {};
-        const customerId = user.id || "Unknown";
-
-        // လက်ရှိအချိန်ကို 14/01/2026 10:12:27 pm ပုံစံမျိုး ရယူခြင်း
-        const orderTime = new Date().toLocaleString('en-GB', { 
-            day: '2-digit', month: '2-digit', year: 'numeric', 
-            hour: '2-digit', minute: '2-digit', second: '2-digit', 
-            hour12: true 
-        }).toLowerCase().replace(',', '');
-
-        document.getElementById('loadingOverlay').style.display = 'flex';
-        
-        const gId = document.getElementById('gameId').value;
-        const sId = document.getElementById('serverId').value;
-
-        // --- Error မတက်အောင် Variable များကို စစ်ဆေးခြင်း ---
-        const gameType = activeG; // MLBB သို့မဟုတ် PUBG
-        const playerName = typeof pNm !== 'undefined' ? pNm : 'N/A';
-        const regionInfo = typeof pCt !== 'undefined' ? pCt : 'Myanmar 🇲🇲';
-        const itemLabel = gameType === 'PUBG' ? 'UC' : 'စိန်';
-
-        // Admin ဆီ ပို့မည့် စာသား (PUBG အတွက် Region ဖြုတ်ထားသည်)
-        let adminCaption = `🧾 <b>NEW ORDER: ${orderID}</b>\n━━━━━━━━━━━━━━\n🎮 <b>Game:</b> ${gameType}\n🆔 <b>ID:</b> <code>${gId}</code> ${sId ? '('+sId+')' : ''}\n👤 <b>Name:</b> ${playerName}\n`;
-        if (gameType !== 'PUBG') {
-            adminCaption += `🌍 <b>Region:</b> ${regionInfo}\n`;
-        }
-        adminCaption += `\n💎 <b>Item:</b> ${sD}\n💰 <b>Price:</b> ${sP}\n🏦 <b>Pay:</b> ${pMt.toUpperCase()}\n📅 <b>Time:</b> ${orderTime}\n━━━━━━━━━━━━━━\n👤 <b>Cust ID:</b> <code>${customerId}</code>`;
-
-        const formData = new FormData();
-        formData.append("chat_id", ADMIN_ID);
-        formData.append("photo", document.getElementById('fileInput').files[0]);
-        formData.append("caption", adminCaption);
-        formData.append("parse_mode", "HTML");
-        formData.append("reply_markup", JSON.stringify({
-            inline_keyboard: [[
-                { text: "✅ Confirm", callback_data: `approve_${customerId}_${orderID}` },
-                { text: "❌ Reject", callback_data: `reject_${customerId}_${orderID}` }
-            ]]
-        }));
+        const loading = document.getElementById('loadingOverlay');
+        loading.style.display = 'flex';
 
         try {
-            const r = await fetch(`https://api.telegram.org/bot${BOT_T}/sendPhoto`, { method: 'POST', body: formData });
-            if(r.ok) {
-                // --- Customer ဆီသို့ ပို့မည့် စာသား (PUBG/MLBB ခွဲခြားထားသည်) ---
-                let customerText = `⌛ <b>Order တင်ခြင်းအောင်မြင်ပါသည်!</b>\n\n🆔 <b>ID:</b> ${orderID}\n🎮 <b>Game ID:</b> ${gId} ${sId ? '['+sId+']' : ''}\n`;
-                
-                if (gameType === 'PUBG') {
-                    customerText += `👤 <b>Name:</b> ${playerName}\n`;
-                } else {
-                    customerText += `🌍 <b>Region:</b> ${regionInfo}\n`;
-                }
+            const orderID = "JM-" + Math.floor(100000 + Math.random() * 900000);
+            const tg = window.Telegram.WebApp;
+            const user = tg.initDataUnsafe.user || {};
+            const customerId = user.id || "Unknown";
 
-                customerText += `💎 <b>ပစ္စည်း:</b> ${sD}\n📅 <b>Time:</b> ${orderTime}\n\nAdmin မှ စစ်ဆေးပြီးပါက ${itemLabel}ထည့်သွင်းပေးသွားမည် ဖြစ်ပါသည်။ ကျေးဇူးတင်ပါသည်။`;
+            const now = new Date();
+            const orderTime = now.toLocaleString('en-GB', { 
+                day: '2-digit', month: '2-digit', year: 'numeric', 
+                hour: '2-digit', minute: '2-digit', second: '2-digit', 
+                hour12: true 
+            }).toLowerCase();
+
+            const gId = document.getElementById('gameId').value;
+            const sId = document.getElementById('serverId').value;
+            const itemLabel = activeG === 'PUBG' ? 'UC' : 'စိန်';
+
+            // Admin Caption
+            let adminCaption = `🧾 <b>NEW ORDER: ${orderID}</b>\n━━━━━━━━━━━━━━\n`;
+            adminCaption += `🎮 <b>Game:</b> ${activeG}\n`;
+            adminCaption += `🆔 <b>ID:</b> <code>${gId}</code> ${sId ? '('+sId+')' : ''}\n`;
+            adminCaption += `👤 <b>Name:</b> ${pNm}\n`;
+            if (activeG !== 'PUBG') adminCaption += `🌍 <b>Region:</b> ${pCt}\n`;
+            adminCaption += `\n💎 <b>Item:</b> ${sD}\n`;
+            adminCaption += `💰 <b>Price:</b> ${sP}\n`;
+            adminCaption += `🏦 <b>Pay:</b> ${pMt.toUpperCase()}\n`;
+            adminCaption += `📅 <b>Time:</b> ${orderTime}\n━━━━━━━━━━━━━━\n`;
+            adminCaption += `👤 <b>Cust ID:</b> <code>${customerId}</code>`;
+
+            const formData = new FormData();
+            formData.append("chat_id", ADMIN_ID);
+            formData.append("photo", document.getElementById('fileInput').files[0]);
+            formData.append("caption", adminCaption);
+            formData.append("parse_mode", "HTML");
+            formData.append("reply_markup", JSON.stringify({
+                inline_keyboard: [[
+                    { text: "✅ Confirm", callback_data: `approve_${customerId}_${orderID}` },
+                    { text: "❌ Reject", callback_data: `reject_${customerId}_${orderID}` }
+                ]]
+            }));
+
+            const r = await fetch(`https://api.telegram.org/bot${BOT_T}/sendPhoto`, { method: 'POST', body: formData });
+            
+            if(r.ok) {
+                // Send Customer confirmation message
+                let customerText = `⌛ <b>Order တင်ခြင်းအောင်မြင်ပါသည်!</b>\n\n`;
+                customerText += `🆔 <b>Order ID:</b> ${orderID}\n`;
+                customerText += `🎮 <b>Game ID:</b> ${gId} ${sId ? '['+sId+']' : ''}\n`;
+                customerText += (activeG === 'PUBG') ? `👤 <b>Name:</b> ${pNm}\n` : `🌍 <b>Region:</b> ${pCt}\n`;
+                customerText += `💎 <b>ပစ္စည်း:</b> ${sD}\n`;
+                customerText += `📅 <b>Time:</b> ${orderTime}\n\n`;
+                customerText += `Admin မှ စစ်ဆေးပြီးပါက ${itemLabel}ထည့်သွင်းပေးသွားမည် ဖြစ်ပါသည်။ ကျေးဇူးတင်ပါသည်။`;
 
                 await fetch(`https://api.telegram.org/bot${BOT_T}/sendMessage`, {
                     method: 'POST',
@@ -385,14 +402,16 @@
 
                 tg.showAlert(`✅ Order Successful!\nID: ${orderID}`);
                 tg.close();
+            } else {
+                alert("Order ပို့ရာတွင် အမှားအယွင်းရှိပါသည်။ (API Error)");
             }
         } catch (e) { 
             console.error(e);
-            alert("Order ပို့ရာတွင် အမှားအယွင်းရှိနေပါသည်။"); 
+            alert("Error: " + e.message); 
+        } finally {
+            loading.style.display = 'none';
         }
-        document.getElementById('loadingOverlay').style.display = 'none';
     }
-    
 </script>
 </body>
 </html>
