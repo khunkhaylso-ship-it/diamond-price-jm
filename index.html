@@ -19,7 +19,6 @@
             transition: background-image 0.8s ease-in-out;
         }
 
-        /* --- RGB Glow Animation --- */
         @keyframes rgbCycle {
             0% { border-color: #ff0000; box-shadow: 0 0 12px #ff0000; }
             25% { border-color: #00ff00; box-shadow: 0 0 12px #00ff00; }
@@ -40,8 +39,7 @@
             margin-bottom: 15px; object-fit: cover;
         }
 
-        /* Layout */
-        .bg-spacer { height: 20vh; width: 100%; }
+        .bg-spacer { height: 15vh; width: 100%; }
 
         /* --- 2. Menu Screen --- */
         #menu-screen {
@@ -50,6 +48,7 @@
             background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.85) 25%);
         }
         .menu-title { font-size: 18px; font-weight: bold; color: #f1c40f; margin-bottom: 25px; letter-spacing: 2px; }
+        
         .game-btn {
             display: flex; align-items: center; width: 88%; max-width: 350px; height: 80px;
             background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
@@ -59,7 +58,13 @@
         .game-icon { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; }
         .game-info { flex: 1; padding-left: 15px; }
 
-        /* --- 3. Shop Screen --- */
+        .history-btn-main {
+            width: 88%; max-width: 350px; padding: 12px; border: 1px solid #f1c40f;
+            border-radius: 12px; background: rgba(241, 196, 15, 0.1); color: #f1c40f;
+            text-align: center; font-weight: bold; margin-top: 10px; cursor: pointer;
+        }
+
+        /* --- 3. Shop & History Screens --- */
         .container {
             display: none; width: 100%; min-height: 100vh;
             background: linear-gradient(to bottom, transparent 0%, rgba(10, 10, 10, 0.96) 20%);
@@ -81,7 +86,6 @@
         }
         #nameDisplay { min-height: 25px; text-align: center; font-size: 13px; color: #00ff88; margin-bottom: 15px; }
 
-        /* Categorized Items */
         .cat-label { color: #f1c40f; font-size: 12px; font-weight: bold; margin: 20px 0 10px; display: flex; align-items: center; gap: 8px; }
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .item-card {
@@ -93,14 +97,12 @@
         .item-name { font-size: 11px; font-weight: bold; color: #eee; display: block; margin-bottom: 3px; }
         .item-price { font-size: 13px; font-weight: bold; color: #00ff88; display: block; }
 
-        /* Payment Details Box */
+        /* Payment Details */
         #payment-details {
             display: none; background: rgba(241, 196, 15, 0.1); border: 1px solid #f1c40f;
             border-radius: 12px; padding: 15px; margin-top: 15px; text-align: center;
         }
         .pay-number { font-size: 18px; font-weight: bold; color: #f1c40f; display: block; margin: 5px 0; }
-        .pay-name { font-size: 13px; color: #fff; opacity: 0.8; }
-
         .pay-row { display: flex; gap: 10px; margin-top: 10px; }
         .pay-box { flex: 1; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px; text-align: center; border: 1.5px solid transparent; cursor: pointer; }
         .pay-box.active { border-color: #00ff88; background: rgba(0,255,136,0.1); }
@@ -112,6 +114,15 @@
         .footer { position: fixed; bottom: 0; left: 0; width: 100%; padding: 15px; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 1000; }
         .main-btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; background: #333; color: #777; transition: 0.3s; }
         .main-btn.active { background: linear-gradient(45deg, #f1c40f, #e67e22); color: #000; }
+
+        /* History Card Style */
+        .history-card {
+            background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 15px;
+            padding: 15px; margin-bottom: 12px; position: relative;
+        }
+        .h-id { font-size: 14px; color: #f1c40f; font-weight: bold; }
+        .h-game { font-size: 12px; color: #aaa; margin: 4px 0; }
+        .h-price { color: #00ff88; font-weight: bold; float: right; }
 
         #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
         .spinner { width: 40px; height: 40px; border: 4px solid #333; border-top: 4px solid #f1c40f; border-radius: 50%; animation: spin 1s linear infinite; }
@@ -136,6 +147,7 @@
         <img src="https://cdn1.codashop.com/S/content/mobile/images/product-tiles/MLBB-2025-tiles-178x178.jpg" class="game-icon">
         <div class="game-info"><span class="game-name">MOBILE LEGENDS</span></div>
     </div>
+    <div class="history-btn-main" onclick="showHistory()"><i class="fa-solid fa-clock-rotate-left"></i> Order History</div>
 </div>
 
 <div class="container" id="shop-screen">
@@ -178,6 +190,15 @@
     </div>
 </div>
 
+<div class="container" id="history-screen">
+    <div class="bg-spacer"></div>
+    <div class="shop-header">
+        <i class="fa-solid fa-arrow-left" onclick="goBack()" style="cursor:pointer; color:#f1c40f;"></i>
+        <span style="font-weight:bold; margin-left:10px;">ORDER HISTORY</span>
+    </div>
+    <div id="historyList"></div>
+</div>
+
 <div class="footer" id="footerBar" style="display:none;">
     <button id="orderBtn" class="main-btn">အချက်အလက်များ ဖြည့်ပါ</button>
 </div>
@@ -194,7 +215,6 @@
         document.getElementById('menu-screen').style.display = 'flex'; 
     }, 2000);
 
-    // Global Variables
     let activeG = "", sD = "", sP = "", pNm = "N/A", pMt = "", pCt = "Myanmar 🇲🇲";
 
     const mlData = {
@@ -225,6 +245,7 @@
         container.innerHTML = "";
         document.getElementById('menu-screen').style.display = 'none';
         document.getElementById('shop-screen').style.display = 'block';
+        document.getElementById('history-screen').style.display = 'none';
         document.getElementById('footerBar').style.display = 'block';
 
         if (g === 'MLBB') {
@@ -330,109 +351,110 @@
         document.body.style.backgroundImage = "url('https://i.pinimg.com/736x/e3/d5/03/e3d503ffbdbf4413bbc2c795a989e489.jpg')";
         document.getElementById('menu-screen').style.display = 'flex';
         document.getElementById('shop-screen').style.display = 'none';
+        document.getElementById('history-screen').style.display = 'none';
         document.getElementById('footerBar').style.display = 'none';
     }
 
-    async function sendOrder() {
-    // 1. Loading စတင်ပြသမည်
-    const loading = document.getElementById('loadingOverlay');
-    loading.style.display = 'flex';
-
-    try {
-        const orderID = "JM-" + Math.floor(100000 + Math.random() * 900000);
-        const tg = window.Telegram.WebApp;
-        const user = tg.initDataUnsafe.user || {};
-        const customerId = user.id || "Unknown";
-
-        // အချိန်ယူခြင်း
-        const now = new Date();
-        const orderTime = now.toLocaleString('en-GB', { 
-            day: '2-digit', month: '2-digit', year: 'numeric', 
-            hour: '2-digit', minute: '2-digit', second: '2-digit', 
-            hour12: true 
-        }).toLowerCase();
-
-        const gId = document.getElementById('gameId').value;
-        const sId = document.getElementById('serverId').value;
-
-        // --- Variable စစ်ဆေးခြင်း (Error မတက်စေရန်) ---
-        // Player Name ရှိမရှိစစ်၊ မရှိလျှင် 'N/A' ဟုပြမည်
-        const playerName = (typeof pNm !== 'undefined' && pNm) ? pNm : 'N/A';
-        // Region ရှိမရှိစစ်၊ မရှိလျှင် 'Myanmar' ဟုပြမည်
-        const regionInfo = (typeof pCt !== 'undefined' && pCt) ? pCt : 'Myanmar 🇲🇲';
-        const itemLabel = activeG === 'PUBG' ? 'UC' : 'စိန်';
-
-        // 2. Admin ဆီသို့ ပို့မည့်စာသား
-        let adminCaption = `🧾 <b>NEW ORDER: ${orderID}</b>\n━━━━━━━━━━━━━━\n`;
-        adminCaption += `🎮 <b>Game:</b> ${activeG}\n`;
-        adminCaption += `🆔 <b>ID:</b> <code>${gId}</code> ${sId ? '('+sId+')' : ''}\n`;
-        adminCaption += `👤 <b>Name:</b> ${playerName}\n`;
-        if (activeG !== 'PUBG') {
-            adminCaption += `🌍 <b>Region:</b> ${regionInfo}\n`;
-        }
-        adminCaption += `\n💎 <b>Item:</b> ${sD}\n`;
-        adminCaption += `💰 <b>Price:</b> ${sP}\n`;
-        adminCaption += `🏦 <b>Pay:</b> ${pMt.toUpperCase()}\n`;
-        adminCaption += `📅 <b>Time:</b> ${orderTime}\n━━━━━━━━━━━━━━\n`;
-        adminCaption += `👤 <b>Cust ID:</b> <code>${customerId}</code>`;
-
-        const formData = new FormData();
-        formData.append("chat_id", ADMIN_ID);
-        formData.append("photo", document.getElementById('fileInput').files[0]);
-        formData.append("caption", adminCaption);
-        formData.append("parse_mode", "HTML");
-        formData.append("reply_markup", JSON.stringify({
-            inline_keyboard: [[
-                { text: "✅ Confirm", callback_data: `approve_${customerId}_${orderID}` },
-                { text: "❌ Reject", callback_data: `reject_${customerId}_${orderID}` }
-            ]]
-        }));
-
-        // 3. Admin ဆီ ပုံပို့ခြင်း
-        const response = await fetch(`https://api.telegram.org/bot${BOT_T}/sendPhoto`, { 
-            method: 'POST', 
-            body: formData 
-        });
-
-        if (response.ok) {
-            // 4. Customer ဆီသို့ အကြောင်းကြားစာ ပို့ခြင်း
-            let customerText = `⌛ <b>Order တင်ခြင်းအောင်မြင်ပါသည်!</b>\n\n`;
-            customerText += `🆔 <b>Order ID:</b> ${orderID}\n`;
-            customerText += `🎮 <b>Game ID:</b> ${gId} ${sId ? '['+sId+']' : ''}\n`;
-            if (activeG === 'PUBG') {
-                customerText += `👤 <b>Name:</b> ${playerName}\n`;
-            } else {
-                customerText += `🌍 <b>Region:</b> ${regionInfo}\n`;
-            }
-            customerText += `💎 <b>ပစ္စည်း:</b> ${sD}\n`;
-            customerText += `📅 <b>Time:</b> ${orderTime}\n\n`;
-            customerText += `Admin မှ စစ်ဆေးပြီးပါက ${itemLabel}ထည့်သွင်းပေးသွားမည် ဖြစ်ပါသည်။ ကျေးဇူးတင်ပါသည်။`;
-
-            await fetch(`https://api.telegram.org/bot${BOT_T}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: customerId,
-                    text: customerText,
-                    parse_mode: "HTML"
-                })
-            });
-
-            tg.showAlert(`✅ Order Successful!\nID: ${orderID}`);
-            tg.close();
+    function showHistory() {
+        document.getElementById('menu-screen').style.display = 'none';
+        document.getElementById('history-screen').style.display = 'block';
+        const list = document.getElementById('historyList');
+        const history = JSON.parse(localStorage.getItem('jm_orders') || '[]');
+        
+        if (history.length === 0) {
+            list.innerHTML = `<p style="text-align:center; color:#666; margin-top:50px;">Order ရာဇဝင် မရှိသေးပါ။</p>`;
         } else {
-            const errorData = await response.json();
-            alert("Telegram Error: " + errorData.description);
+            list.innerHTML = history.reverse().map(h => `
+                <div class="history-card">
+                    <span class="h-price">${h.price}</span>
+                    <div class="h-id">${h.id}</div>
+                    <div class="h-game">${h.game} | ${h.gameId}</div>
+                    <div style="font-size:11px; color:#666; margin-top:5px;">${h.time}</div>
+                </div>
+            `).join('');
         }
-
-    } catch (e) {
-        console.error(e);
-        alert("System Error: " + e.message);
-    } finally {
-        // 5. နောက်ဆုံးတွင် ဘာပဲဖြစ်ဖြစ် Loading ကို ပြန်ပိတ်မည်
-        loading.style.display = 'none';
     }
-}
+
+    async function sendOrder() {
+        const loading = document.getElementById('loadingOverlay');
+        loading.style.display = 'flex';
+
+        try {
+            const orderID = "JM-" + Math.floor(100000 + Math.random() * 900000);
+            const tg = window.Telegram.WebApp;
+            const user = tg.initDataUnsafe.user || {};
+            const customerId = user.id || "Unknown";
+
+            const now = new Date();
+            const orderTime = now.toLocaleString('en-GB', { 
+                day: '2-digit', month: '2-digit', year: 'numeric', 
+                hour: '2-digit', minute: '2-digit', second: '2-digit', 
+                hour12: true 
+            }).toLowerCase();
+
+            const gId = document.getElementById('gameId').value;
+            const sId = document.getElementById('serverId').value;
+            const playerName = pNm || 'N/A';
+            const regionInfo = pCt || 'Myanmar 🇲🇲';
+            const itemLabel = activeG === 'PUBG' ? 'UC' : 'စိန်';
+
+            // --- Save to Local History ---
+            const myOrders = JSON.parse(localStorage.getItem('jm_orders') || '[]');
+            myOrders.push({ id: orderID, game: activeG, gameId: gId, price: sP, time: orderTime });
+            localStorage.setItem('jm_orders', JSON.stringify(myOrders));
+
+            // Admin Caption
+            let adminCaption = `🧾 <b>NEW ORDER: ${orderID}</b>\n━━━━━━━━━━━━━━\n`;
+            adminCaption += `🎮 <b>Game:</b> ${activeG}\n`;
+            adminCaption += `🆔 <b>ID:</b> <code>${gId}</code> ${sId ? '('+sId+')' : ''}\n`;
+            adminCaption += `👤 <b>Name:</b> ${playerName}\n`;
+            if (activeG !== 'PUBG') adminCaption += `🌍 <b>Region:</b> ${regionInfo}\n`;
+            adminCaption += `\n💎 <b>Item:</b> ${sD}\n`;
+            adminCaption += `💰 <b>Price:</b> ${sP}\n`;
+            adminCaption += `🏦 <b>Pay:</b> ${pMt.toUpperCase()}\n`;
+            adminCaption += `📅 <b>Time:</b> ${orderTime}\n━━━━━━━━━━━━━━\n`;
+            adminCaption += `👤 <b>Cust ID:</b> <code>${customerId}</code>`;
+
+            const formData = new FormData();
+            formData.append("chat_id", ADMIN_ID);
+            formData.append("photo", document.getElementById('fileInput').files[0]);
+            formData.append("caption", adminCaption);
+            formData.append("parse_mode", "HTML");
+            formData.append("reply_markup", JSON.stringify({
+                inline_keyboard: [[
+                    { text: "✅ Confirm", callback_data: `approve_${customerId}_${orderID}` },
+                    { text: "❌ Reject", callback_data: `reject_${customerId}_${orderID}` }
+                ]]
+            }));
+
+            const response = await fetch(`https://api.telegram.org/bot${BOT_T}/sendPhoto`, { method: 'POST', body: formData });
+
+            if (response.ok) {
+                let customerText = `⌛ <b>Order တင်ခြင်းအောင်မြင်ပါသည်!</b>\n\n`;
+                customerText += `🆔 <b>Order ID:</b> ${orderID}\n`;
+                customerText += `🎮 <b>Game ID:</b> ${gId} ${sId ? '['+sId+']' : ''}\n`;
+                customerText += (activeG === 'PUBG') ? `👤 <b>Name:</b> ${playerName}\n` : `🌍 <b>Region:</b> ${regionInfo}\n`;
+                customerText += `💎 <b>ပစ္စည်း:</b> ${sD}\n`;
+                customerText += `📅 <b>Time:</b> ${orderTime}\n\n`;
+                customerText += `Admin မှ စစ်ဆေးပြီးပါက ${itemLabel}ထည့်သွင်းပေးသွားမည် ဖြစ်ပါသည်။ ကျေးဇူးတင်ပါသည်။`;
+
+                await fetch(`https://api.telegram.org/bot${BOT_T}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: customerId, text: customerText, parse_mode: "HTML" })
+                });
+
+                tg.showAlert(`✅ Order Successful!\nID: ${orderID}`);
+                tg.close();
+            } else {
+                alert("Telegram Bot Error. Please check BOT_TOKEN/ADMIN_ID.");
+            }
+        } catch (e) {
+            alert("System Error: " + e.message);
+        } finally {
+            loading.style.display = 'none';
+        }
+    }
 </script>
 </body>
 </html>
