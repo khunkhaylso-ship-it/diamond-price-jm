@@ -334,84 +334,105 @@
     }
 
     async function sendOrder() {
-        const loading = document.getElementById('loadingOverlay');
-        loading.style.display = 'flex';
+    // 1. Loading စတင်ပြသမည်
+    const loading = document.getElementById('loadingOverlay');
+    loading.style.display = 'flex';
 
-        try {
-            const orderID = "JM-" + Math.floor(100000 + Math.random() * 900000);
-            const tg = window.Telegram.WebApp;
-            const user = tg.initDataUnsafe.user || {};
-            const customerId = user.id || "Unknown";
+    try {
+        const orderID = "JM-" + Math.floor(100000 + Math.random() * 900000);
+        const tg = window.Telegram.WebApp;
+        const user = tg.initDataUnsafe.user || {};
+        const customerId = user.id || "Unknown";
 
-            const now = new Date();
-            const orderTime = now.toLocaleString('en-GB', { 
-                day: '2-digit', month: '2-digit', year: 'numeric', 
-                hour: '2-digit', minute: '2-digit', second: '2-digit', 
-                hour12: true 
-            }).toLowerCase();
+        // အချိန်ယူခြင်း
+        const now = new Date();
+        const orderTime = now.toLocaleString('en-GB', { 
+            day: '2-digit', month: '2-digit', year: 'numeric', 
+            hour: '2-digit', minute: '2-digit', second: '2-digit', 
+            hour12: true 
+        }).toLowerCase();
 
-            const gId = document.getElementById('gameId').value;
-            const sId = document.getElementById('serverId').value;
-            const itemLabel = activeG === 'PUBG' ? 'UC' : 'စိန်';
+        const gId = document.getElementById('gameId').value;
+        const sId = document.getElementById('serverId').value;
 
-            // Admin Caption
-            let adminCaption = `🧾 <b>NEW ORDER: ${orderID}</b>\n━━━━━━━━━━━━━━\n`;
-            adminCaption += `🎮 <b>Game:</b> ${activeG}\n`;
-            adminCaption += `🆔 <b>ID:</b> <code>${gId}</code> ${sId ? '('+sId+')' : ''}\n`;
-            adminCaption += `👤 <b>Name:</b> ${pNm}\n`;
-            if (activeG !== 'PUBG') adminCaption += `🌍 <b>Region:</b> ${pCt}\n`;
-            adminCaption += `\n💎 <b>Item:</b> ${sD}\n`;
-            adminCaption += `💰 <b>Price:</b> ${sP}\n`;
-            adminCaption += `🏦 <b>Pay:</b> ${pMt.toUpperCase()}\n`;
-            adminCaption += `📅 <b>Time:</b> ${orderTime}\n━━━━━━━━━━━━━━\n`;
-            adminCaption += `👤 <b>Cust ID:</b> <code>${customerId}</code>`;
+        // --- Variable စစ်ဆေးခြင်း (Error မတက်စေရန်) ---
+        // Player Name ရှိမရှိစစ်၊ မရှိလျှင် 'N/A' ဟုပြမည်
+        const playerName = (typeof pNm !== 'undefined' && pNm) ? pNm : 'N/A';
+        // Region ရှိမရှိစစ်၊ မရှိလျှင် 'Myanmar' ဟုပြမည်
+        const regionInfo = (typeof pCt !== 'undefined' && pCt) ? pCt : 'Myanmar 🇲🇲';
+        const itemLabel = activeG === 'PUBG' ? 'UC' : 'စိန်';
 
-            const formData = new FormData();
-            formData.append("chat_id", ADMIN_ID);
-            formData.append("photo", document.getElementById('fileInput').files[0]);
-            formData.append("caption", adminCaption);
-            formData.append("parse_mode", "HTML");
-            formData.append("reply_markup", JSON.stringify({
-                inline_keyboard: [[
-                    { text: "✅ Confirm", callback_data: `approve_${customerId}_${orderID}` },
-                    { text: "❌ Reject", callback_data: `reject_${customerId}_${orderID}` }
-                ]]
-            }));
-
-            const r = await fetch(`https://api.telegram.org/bot${BOT_T}/sendPhoto`, { method: 'POST', body: formData });
-            
-            if(r.ok) {
-                // Send Customer confirmation message
-                let customerText = `⌛ <b>Order တင်ခြင်းအောင်မြင်ပါသည်!</b>\n\n`;
-                customerText += `🆔 <b>Order ID:</b> ${orderID}\n`;
-                customerText += `🎮 <b>Game ID:</b> ${gId} ${sId ? '['+sId+']' : ''}\n`;
-                customerText += (activeG === 'PUBG') ? `👤 <b>Name:</b> ${pNm}\n` : `🌍 <b>Region:</b> ${pCt}\n`;
-                customerText += `💎 <b>ပစ္စည်း:</b> ${sD}\n`;
-                customerText += `📅 <b>Time:</b> ${orderTime}\n\n`;
-                customerText += `Admin မှ စစ်ဆေးပြီးပါက ${itemLabel}ထည့်သွင်းပေးသွားမည် ဖြစ်ပါသည်။ ကျေးဇူးတင်ပါသည်။`;
-
-                await fetch(`https://api.telegram.org/bot${BOT_T}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: customerId,
-                        text: customerText,
-                        parse_mode: "HTML"
-                    })
-                });
-
-                tg.showAlert(`✅ Order Successful!\nID: ${orderID}`);
-                tg.close();
-            } else {
-                alert("Order ပို့ရာတွင် အမှားအယွင်းရှိပါသည်။ (API Error)");
-            }
-        } catch (e) { 
-            console.error(e);
-            alert("Error: " + e.message); 
-        } finally {
-            loading.style.display = 'none';
+        // 2. Admin ဆီသို့ ပို့မည့်စာသား
+        let adminCaption = `🧾 <b>NEW ORDER: ${orderID}</b>\n━━━━━━━━━━━━━━\n`;
+        adminCaption += `🎮 <b>Game:</b> ${activeG}\n`;
+        adminCaption += `🆔 <b>ID:</b> <code>${gId}</code> ${sId ? '('+sId+')' : ''}\n`;
+        adminCaption += `👤 <b>Name:</b> ${playerName}\n`;
+        if (activeG !== 'PUBG') {
+            adminCaption += `🌍 <b>Region:</b> ${regionInfo}\n`;
         }
+        adminCaption += `\n💎 <b>Item:</b> ${sD}\n`;
+        adminCaption += `💰 <b>Price:</b> ${sP}\n`;
+        adminCaption += `🏦 <b>Pay:</b> ${pMt.toUpperCase()}\n`;
+        adminCaption += `📅 <b>Time:</b> ${orderTime}\n━━━━━━━━━━━━━━\n`;
+        adminCaption += `👤 <b>Cust ID:</b> <code>${customerId}</code>`;
+
+        const formData = new FormData();
+        formData.append("chat_id", ADMIN_ID);
+        formData.append("photo", document.getElementById('fileInput').files[0]);
+        formData.append("caption", adminCaption);
+        formData.append("parse_mode", "HTML");
+        formData.append("reply_markup", JSON.stringify({
+            inline_keyboard: [[
+                { text: "✅ Confirm", callback_data: `approve_${customerId}_${orderID}` },
+                { text: "❌ Reject", callback_data: `reject_${customerId}_${orderID}` }
+            ]]
+        }));
+
+        // 3. Admin ဆီ ပုံပို့ခြင်း
+        const response = await fetch(`https://api.telegram.org/bot${BOT_T}/sendPhoto`, { 
+            method: 'POST', 
+            body: formData 
+        });
+
+        if (response.ok) {
+            // 4. Customer ဆီသို့ အကြောင်းကြားစာ ပို့ခြင်း
+            let customerText = `⌛ <b>Order တင်ခြင်းအောင်မြင်ပါသည်!</b>\n\n`;
+            customerText += `🆔 <b>Order ID:</b> ${orderID}\n`;
+            customerText += `🎮 <b>Game ID:</b> ${gId} ${sId ? '['+sId+']' : ''}\n`;
+            if (activeG === 'PUBG') {
+                customerText += `👤 <b>Name:</b> ${playerName}\n`;
+            } else {
+                customerText += `🌍 <b>Region:</b> ${regionInfo}\n`;
+            }
+            customerText += `💎 <b>ပစ္စည်း:</b> ${sD}\n`;
+            customerText += `📅 <b>Time:</b> ${orderTime}\n\n`;
+            customerText += `Admin မှ စစ်ဆေးပြီးပါက ${itemLabel}ထည့်သွင်းပေးသွားမည် ဖြစ်ပါသည်။ ကျေးဇူးတင်ပါသည်။`;
+
+            await fetch(`https://api.telegram.org/bot${BOT_T}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: customerId,
+                    text: customerText,
+                    parse_mode: "HTML"
+                })
+            });
+
+            tg.showAlert(`✅ Order Successful!\nID: ${orderID}`);
+            tg.close();
+        } else {
+            const errorData = await response.json();
+            alert("Telegram Error: " + errorData.description);
+        }
+
+    } catch (e) {
+        console.error(e);
+        alert("System Error: " + e.message);
+    } finally {
+        // 5. နောက်ဆုံးတွင် ဘာပဲဖြစ်ဖြစ် Loading ကို ပြန်ပိတ်မည်
+        loading.style.display = 'none';
     }
+}
 </script>
 </body>
 </html>
