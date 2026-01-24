@@ -67,29 +67,80 @@
         }
 
         /* --- Menu Buttons --- */
-        .menu-title { font-size: 20px; font-weight: bold; color: #fff; text-shadow: 0 0 10px #f1c40f; margin-bottom: 30px; letter-spacing: 2px; }
+#menu-screen {
+    display: none; 
+    flex-direction: column;
+    justify-content: center; /* အပေါ်အောက် အလယ်ဗဟို ပို့ပေးသည် */
+    align-items: center;     /* ဘယ်ညာ အလယ်ဗဟို ပို့ပေးသည် */
+    min-height: 100vh;       /* Screen အပြည့်ယူထားမှ အလယ်ချိန်လို့ရမှာပါ */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.menu-title { 
+    font-size: 24px; 
+    font-weight: bold; 
+    color: #f1c40f; 
+    text-shadow: 0 0 15px rgba(241, 196, 15, 0.5);
+    margin-bottom: 40px; 
+    letter-spacing: 2px; 
+    text-align: center;
+}
         
-        .game-btn {
-            display: flex; align-items: center; width: 90%; max-width: 380px; height: 85px;
-            background: rgba(20, 20, 20, 0.6); /* Semi-transparent */
-            border: 1px solid rgba(255, 255, 255, 0.3); 
-            border-radius: 20px; margin-bottom: 18px;
-            cursor: pointer; padding: 12px; transition: 0.3s;
-            backdrop-filter: blur(5px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-        }
-        .game-btn:active { transform: scale(0.96); border-color: #f1c40f; background: rgba(241, 196, 15, 0.2); }
-        .game-icon { width: 60px; height: 60px; border-radius: 14px; object-fit: cover; border: 2px solid #fff; }
-        .game-info { flex: 1; padding-left: 15px; font-weight: bold; font-size: 16px; color: #fff; text-shadow: 1px 1px 2px black; }
+.game-btn {
+    display: flex; 
+    align-items: center; 
+    width: 95%; /* ဖုန်းမှာ ပိုကြည့်ကောင်းအောင် နည်းနည်းချဲ့ထားပါတယ် */
+    max-width: 380px; 
+    height: 85px;
+    background: rgba(20, 20, 20, 0.6); /* ပိုကြည်အောင် 0.6 ထားထားပါတယ် */
+    border: 1px solid rgba(255, 255, 255, 0.3); 
+    border-radius: 20px; 
+    margin-bottom: 18px;
+    cursor: pointer; 
+    padding: 12px; 
+    transition: 0.3s;
+    backdrop-filter: blur(8px); /* Blur ပိုတင်ထားပေးလို့ background ပိုကြည်မယ် */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
 
-        .history-btn-main {
-            width: 90%; max-width: 380px; padding: 14px; 
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 15px; background: rgba(0, 0, 0, 0.5); 
-            color: #ccc; text-align: center; font-weight: bold; 
-            margin-top: 15px; cursor: pointer; backdrop-filter: blur(4px);
-        }
+.game-btn:active { 
+    transform: scale(0.96); 
+    border-color: #f1c40f; 
+    background: rgba(241, 196, 15, 0.2); 
+}
 
+.game-icon { 
+    width: 60px; 
+    height: 60px; 
+    border-radius: 14px; 
+    object-fit: cover; 
+    border: 2px solid rgba(255,255,255,0.8); 
+}
+
+.game-info { 
+    flex: 1; 
+    padding-left: 15px; 
+    font-weight: bold; 
+    font-size: 16px; 
+    color: #fff; 
+    text-shadow: 1px 1px 3px black; 
+}
+
+.history-btn-main {
+    width: 95%; 
+    max-width: 380px; 
+    padding: 14px; 
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px; 
+    background: rgba(0, 0, 0, 0.4); 
+    color: #ccc; 
+    text-align: center; 
+    font-weight: bold; 
+    margin-top: 25px; 
+    cursor: pointer; 
+    backdrop-filter: blur(4px);
+}
         /* --- Input Fields --- */
         .id-group { display: flex; gap: 10px; margin-bottom: 15px; }
         .input-box {
@@ -472,17 +523,23 @@
         document.getElementById('display-pay-name').innerText = "Name: " + name;
 
         const appLinkBtn = document.getElementById('open-app-link');
-        if(mt === 'kpay') {
-            appLinkBtn.href = "kbzpay://";
-            appLinkBtn.innerText = "📲 Open KPay App";
-            appLinkBtn.style.background = "#005eab";
-            appLinkBtn.style.color = "#fff";
-        } else {
-            appLinkBtn.href = "wavepay://";
-            appLinkBtn.innerText = "📲 Open Wave Money";
-            appLinkBtn.style.background = "#ffe600";
-            appLinkBtn.style.color = "#000";
-        }
+       if (mt === 'kpay') {
+    appLinkBtn.onclick = function() {
+        // Telegram API ကိုသုံးပြီး KPay App ကို Force Open လုပ်ခိုင်းခြင်း
+        window.Telegram.WebApp.openLink("kbzpay://");
+    };
+    appLinkBtn.innerText = "📲 Open KPay App";
+    appLinkBtn.style.background = "#005eab";
+    appLinkBtn.style.color = "#fff";
+} else {
+    appLinkBtn.onclick = function() {
+        // WavePay App အတွက် Force Open လုပ်ခိုင်းခြင်း
+        window.Telegram.WebApp.openLink("wavepay://");
+    };
+    appLinkBtn.innerText = "📲 Open Wave Money";
+    appLinkBtn.style.background = "#ffe600";
+    appLinkBtn.style.color = "#000";
+}
         validateStep2();
     }
 
