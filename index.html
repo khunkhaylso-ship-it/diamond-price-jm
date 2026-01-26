@@ -48,10 +48,12 @@
         /* --- Glassmorphism Containers --- */
         /* နောက်ခံပုံကို ပိုမြင်ရအောင် အမည်းရောင်အပါး (Transparent) ကိုသုံးထားသည် */
         .container, #menu-screen {
-            padding: 0 15px;
-            background: rgba(0, 0, 0, 0.45); /* 45% Opacity Black */
-            backdrop-filter: blur(6px); /* Blur effect */
-        }
+    padding: 0 15px; /* 0.3 ကို 0 ပြောင်းပါ */
+    background: rgba(0, 0, 0, 0.25); /* 0.45 မှ 0.25 သို့လျှော့လျှင် background ပိုမြင်ရပါမည် */
+    backdrop-filter: blur(3px); 
+    width: 100%;
+    box-sizing: border-box; /* ဒါမှ screen ကွက်တိကျမှာပါ */
+}
         
         .bg-spacer { height: 10vh; width: 100%; }
 
@@ -442,19 +444,42 @@
         container.innerHTML = "";
 
         if (g === 'MLBB') {
-            document.body.style.backgroundImage = BG_ML_SHOP;
-            document.getElementById('shop-title').innerText = "MOBILE LEGENDS";
-            document.getElementById('serverId').style.display = 'block';
-            
-            container.innerHTML += `<div class="cat-label">Weekly Pass</div><div class="grid"><div class="item-card" style="grid-column: span 2;" onclick="selectItem(this,'${mlData.weekly.n}',${mlData.weekly.p})"><img src="${mlData.weekly.icon}"><br><span class="item-name">${mlData.weekly.n}</span><span class="item-price">${mlData.weekly.p.toLocaleString()} ks</span></div></div>`;
-            
-            let bth = `<div class="cat-label">Double Diamond (Promo)</div><div class="grid">`;
-            mlData.promo.forEach(i => { bth += `<div class="item-card" onclick="selectItem(this,'${i.n}',${i.p})"><img src="https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760334222477_bdd28040-0bd9-4dff-b748-ed7b1a0aecdd.png"><br><span class="item-name">${i.n}</span><span class="item-price">${i.p.toLocaleString()} ks</span></div>`; });
-            container.innerHTML += bth + "</div>";
+    document.body.style.backgroundImage = BG_ML_SHOP;
+    document.getElementById('shop-title').innerText = "MOBILE LEGENDS";
+    document.getElementById('serverId').style.display = 'block';
+    
+    // Weekly Pass (Width 100% ပေးလိုက်မှ screen ညီမှာပါ)
+    container.innerHTML += `
+        <div class="cat-label">Weekly Pass</div>
+        <div class="grid">
+            <div class="item-card" style="grid-column: span 2; width: 100%;" onclick="selectItem(this,'${mlData.weekly.n}',${mlData.weekly.p})">
+                <img src="${mlData.weekly.icon}">
+                <br><span class="item-name">${mlData.weekly.n}</span>
+                <span class="item-price">${mlData.weekly.p.toLocaleString()} ks</span>
+            </div>
+        </div>`;
+    
+    // Double Diamond (Promo)
+    let bth = `<div class="cat-label">Double Diamond (Promo)</div><div class="grid">`;
+    mlData.promo.forEach(i => { 
+        bth += `<div class="item-card" onclick="selectItem(this,'${i.n}',${i.p})">
+                    <img src="https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760334222477_bdd28040-0bd9-4dff-b748-ed7b1a0aecdd.png">
+                    <br><span class="item-name">${i.n}</span>
+                    <span class="item-price">${i.p.toLocaleString()} ks</span>
+                </div>`; 
+    });
+    container.innerHTML += bth + "</div>";
 
-            let nth = `<div class="cat-label">Diamonds</div><div class="grid">`;
-            mlData.normal.forEach(i => { nth += `<div class="item-card" onclick="selectItem(this,'${i.n}',${i.p})"><img src="https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760335249005_d119a418-95ae-4562-bd62-135e57cf7504.png"><br><span class="item-name">${i.n}</span><span class="item-price">${i.p.toLocaleString()} ks</span></div>`; });
-            container.innerHTML += nth + "</div>";
+    // Diamonds
+    let nth = `<div class="cat-label">Diamonds</div><div class="grid">`;
+    mlData.normal.forEach(i => { 
+        nth += `<div class="item-card" onclick="selectItem(this,'${i.n}',${i.p})">
+                    <img src="https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760335249005_d119a418-95ae-4562-bd62-135e57cf7504.png">
+                    <br><span class="item-name">${i.n}</span>
+                    <span class="item-price">${i.p.toLocaleString()} ks</span>
+                </div>`; 
+    });
+    container.innerHTML += nth + "</div>";
         } else {
             document.body.style.backgroundImage = BG_PUBG_SHOP;
             document.getElementById('shop-title').innerText = "PUBG MOBILE UC";
@@ -527,7 +552,13 @@
         if (mt === 'kpay') {
             appLinkBtn.onclick = function(e) {
                 e.preventDefault();
-                window.Telegram.WebApp.openLink("https://www.kbzpay.com/my");
+                // KBZPay App ကို တိုက်ရိုက်ခေါ်ခြင်း
+                window.Telegram.WebApp.openLink("kbzpay://");
+                
+                // App မရှိပါက Backup အနေဖြင့် ၅ စက္ကန့်အကြာတွင် Website ဖွင့်ရန်
+                setTimeout(() => {
+                    window.Telegram.WebApp.openLink("https://www.kbzpay.com/my");
+                }, 500);
             };
             appLinkBtn.innerText = "📲 Open KPay App";
             appLinkBtn.style.background = "#005eab";
@@ -535,7 +566,12 @@
         } else {
             appLinkBtn.onclick = function(e) {
                 e.preventDefault();
-                window.Telegram.WebApp.openLink("https://wavemoney.com.mm/");
+                // Wave Money App ကို တိုက်ရိုက်ခေါ်ခြင်း
+                window.Telegram.WebApp.openLink("wavepay://");
+                
+                setTimeout(() => {
+                    window.Telegram.WebApp.openLink("https://wavemoney.com.mm/");
+                }, 500);
             };
             appLinkBtn.innerText = "📲 Open Wave Money";
             appLinkBtn.style.background = "#ffe600";
