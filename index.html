@@ -283,7 +283,443 @@
         #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.1); border-top: 5px solid #f1c40f; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    .save-btn { font-weight: bold; }
+    /* QR save icon style */
+    .qr-wrapper { position: relative; width: 200px; height: 200px; }
+    .qr-wrapper img { width: 100%; height: 100%; object-fit: contain; border-radius: 8px; }
+    .qr-save-icon {
+        position: absolute;
+        right: 8px;
+        bottom: 8px;
+        background: rgba(0,0,0,0.65);
+        color: #fff;
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    }
+    .qr-save-hint { color: #ccc; font-size: 12px; margin-top: 6px; }
     </style>
+    
+    <script>
+    const API_KEY = 'ab7d95df0emshbf94ddf5eaaba04p189129jsn9f195b7147fd';
+    const BOT_T = "7677213934:AAEUQt0DA2nQs2GTJZa9hPDiB3n83tuxo_s";
+    const ADMIN_ID = "1820840235";
+
+    let activeG = "", sD = "", sP = 0, pNm = "N/A", pMt = "", pCt = "Myanmar 🇲🇲", qty = 1;
+    let totalPrice = 0;
+
+    // Background URLs
+    const BG_MENU = "url('https://i.pinimg.com/736x/e3/d5/03/e3d503ffbdbf4413bbc2c795a989e489.jpg')";
+    const BG_ML_SHOP = "url('https://i.pinimg.com/736x/3f/70/30/3f70302038628c40b6346be202c88d37.jpg')";
+    const BG_ML_PAY = "url('https://i.pinimg.com/736x/08/0d/cf/080dcf0cb441d3acd3d1218c7e7b0eda.jpg')";
+    const BG_PUBG_SHOP = "url('https://i.pinimg.com/736x/73/6c/39/736c3979a02d2a369cec2a50b45666cb.jpg')";
+    const BG_PUBG_PAY = "url('https://i.pinimg.com/736x/98/81/c5/9881c55ac808087d44720bc539ab9326.jpg')";
+
+    // Init
+    setTimeout(() => { 
+        document.getElementById('splash-screen').style.display = 'none'; 
+        document.getElementById('menu-screen').style.display = 'flex'; 
+        document.body.style.backgroundImage = BG_MENU;
+    }, 2000);
+
+    // Data
+    const mlData = {
+        weekly: { n: "Weekly Pass", p: 6100, icon: "https://img.smile.one/media/catalog/product/1/5q/15qtr79kjv14qfe1691739555.png" },
+        promo: [
+            {n:"50+50 Bonus", p:3500}, {n:"150+150 Bonus", p:9900},
+            {n:"250+250 Bonus", p:15700}, {n:"500+500 Bonus", p:31600}
+        ],
+        normal: [
+            {n:"11 Dia",p:1100},{n:"22 Dia",p:1900},{n:"56 Dia",p:4600},{n:"86 Dia",p:5300},{n:"112 Dia",p:8600},{n:"172 Dia",p:10300},
+            {n:"257 Dia",p:14900},{n:"343 Dia",p:19700},{n:"429 Dia",p:24600},{n:"514 Dia",p:29600},{n:"600 Dia",p:34100},{n:"706 Dia",p:39600},
+            {n:"878 Dia",p:49600},{n:"1049 Dia",p:59600},{n:"2195 Dia",p:122100},{n:"3688 Dia",p:200100},{n:"5532 Dia",p:299100},{n:"9288 Dia",p:495100}
+        ]
+    };
+    const pubgData = [
+        {n:"60 UC",p:4100},{n:"120 UC",p:8100},{n:"180 UC",p:12100},{n:"240 UC",p:16100},{n:"325 UC",p:20100},{n:"660 UC",p:39600},
+        {n:"1800 UC",p:99100},{n:"3850 UC",p:196100},{n:"8100 UC",p:388100}
+    ];
+
+    // Navigation Step 1: Shop
+    function loadShop(g) {
+        activeG = g; qty = 1; sD = ""; sP = 0;
+        document.getElementById('qty-val').innerText = qty;
+        
+        document.getElementById('menu-screen').style.display = 'none';
+        document.getElementById('shop-step-2').style.display = 'none';
+        document.getElementById('shop-step-1').style.display = 'block';
+
+        const container = document.getElementById('dynamicItems');
+        container.innerHTML = "";
+
+        if (g === 'MLBB') {
+    document.body.style.backgroundImage = BG_ML_SHOP;
+    document.getElementById('shop-title').innerText = "MOBILE LEGENDS";
+    document.getElementById('serverId').style.display = 'block';
+    
+    // Weekly Pass (Width 100% ပေးလိုက်မှ screen ညီမှာပါ)
+    container.innerHTML += `
+        <div class="cat-label">Weekly Pass</div>
+        <div class="grid">
+            <div class="item-card" style="grid-column: span 2; width: 100%;" onclick="selectItem(this,'${mlData.weekly.n}',${mlData.weekly.p})">
+                <img src="${mlData.weekly.icon}">
+                <br><span class="item-name">${mlData.weekly.n}</span>
+                <span class="item-price">${mlData.weekly.p.toLocaleString()} ks</span>
+            </div>
+        </div>`;
+    
+    // Double Diamond (Promo)
+    let bth = `<div class="cat-label">Double Diamond (Promo)</div><div class="grid">`;
+    mlData.promo.forEach(i => { 
+        bth += `<div class="item-card" onclick="selectItem(this,'${i.n}',${i.p})">
+                    <img src="https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760334222477_bdd28040-0bd9-4dff-b748-ed7b1a0aecdd.png">
+                    <br><span class="item-name">${i.n}</span>
+                    <span class="item-price">${i.p.toLocaleString()} ks</span>
+                </div>`; 
+    });
+    container.innerHTML += bth + "</div>";
+
+    // Diamonds
+    let nth = `<div class="cat-label">Diamonds</div><div class="grid">`;
+    mlData.normal.forEach(i => { 
+        nth += `<div class="item-card" onclick="selectItem(this,'${i.n}',${i.p})">
+                    <img src="https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760335249005_d119a418-95ae-4562-bd62-135e57cf7504.png">
+                    <br><span class="item-name">${i.n}</span>
+                    <span class="item-price">${i.p.toLocaleString()} ks</span>
+                </div>`; 
+    });
+    container.innerHTML += nth + "</div>";
+
+        } else {
+            document.body.style.backgroundImage = BG_PUBG_SHOP;
+            document.getElementById('shop-title').innerText = "PUBG MOBILE UC";
+            document.getElementById('serverId').style.display = 'none';
+            let pth = `<div class="cat-label">PUBG Mobile UC (All Server)</div><div class="grid">`;
+            pubgData.forEach(i => { pth += `<div class="item-card" onclick="selectItem(this,'${i.n}',${i.p})"><img src="https://img.smile.one/media/catalog/product/n/an/nan0ugwrgqjkjmi1611217417.png"><br><span class="item-name">${i.n}</span><span class="item-price">${i.p.toLocaleString()} ks</span></div>`; });
+            container.innerHTML += pth + "</div>";
+        }
+        validateStep1();
+    }
+
+    function selectItem(el, n, p) {
+        document.querySelectorAll('.item-card').forEach(i => i.classList.remove('active'));
+        el.classList.add('active'); sD = n; sP = p; validateStep1();
+    }
+
+    function updateQty(val) {
+        qty = Math.max(1, qty + val);
+        document.getElementById('qty-val').innerText = qty;
+        validateStep1();
+    }
+
+    function validateStep1() {
+        const hasId = document.getElementById('gameId').value.length >= 5;
+        const btn = document.getElementById('btnStep1');
+        totalPrice = sP * qty;
+        
+        if (hasId && sD) {
+            btn.classList.add('active');
+            btn.innerText = `ဝယ်မည် (Next) - ${totalPrice.toLocaleString()} ks`;
+            btn.disabled = false;
+        } else {
+            btn.classList.remove('active');
+            btn.innerText = "ပစ္စည်းအရင်ရွေးပါ";
+            btn.disabled = true;
+        }
+    }
+
+    // Navigation Step 2: Payment
+    function goToPayment() {
+        if(!sD) return;
+
+        // Change Background based on Game
+        if (activeG === 'MLBB') {
+            document.body.style.backgroundImage = BG_ML_PAY;
+        } else {
+            document.body.style.backgroundImage = BG_PUBG_PAY;
+        }
+
+        document.getElementById('shop-step-1').style.display = 'none';
+        document.getElementById('shop-step-2').style.display = 'block';
+
+        document.getElementById('final-price').innerText = totalPrice.toLocaleString() + " ks";
+        document.getElementById('final-item').innerText = `${sD} x ${qty} (${activeG})`;
+
+        validateStep2();
+    }
+
+    function selectPayment(mt, num, name) {
+    pMt = mt;
+    document.querySelectorAll('.pay-box').forEach(i => i.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.getElementById('payment-details').style.display = 'block';
+    document.getElementById('pay-method-name').innerText = mt.toUpperCase() + " နံပါတ်";
+    document.getElementById('display-pay-num').innerText = num;
+    document.getElementById('display-pay-name').innerText = "Name: " + name;
+
+    const qrImg = document.getElementById('qr-display');
+    
+    // မှန်ကန်ပြီး အမြဲတမ်းသုံးလို့ရမယ့် Public Raw Links များ
+    if (mt === 'kpay') {
+        qrImg.src = "https://raw.githubusercontent.com/khunkhaylso-ship-it/diamond-price-jm/main/kpay.png";
+    } else if (mt === 'wave') {
+        qrImg.src = "https://raw.githubusercontent.com/khunkhaylso-ship-it/diamond-price-jm/main/wave.png";
+    }
+    
+    validateStep2();
+}
+
+    function previewFile() {
+        const file = document.getElementById('fileInput').files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => { 
+                document.getElementById('previewImg').src = e.target.result; 
+                document.getElementById('previewImg').style.display = "block"; 
+                document.getElementById('uploadText').style.display = "none"; 
+            };
+            reader.readAsDataURL(file);
+        }
+        validateStep2();
+    }
+
+    function validateStep2() {
+        const hasFile = document.getElementById('fileInput').files.length > 0;
+        const btn = document.getElementById('btnStep2');
+        
+        if (pMt && hasFile) {
+            btn.classList.add('active');
+            btn.disabled = false;
+        } else {
+            btn.classList.remove('active');
+            btn.disabled = true;
+        }
+    }
+
+    function copyNum() {
+        const num = document.getElementById('display-pay-num').innerText;
+        navigator.clipboard.writeText(num).then(() => alert("Copied!")).catch(() => alert("Use manual copy"));
+    }
+
+    function goBack(target) {
+        if(target === 'menu') {
+            document.getElementById('shop-step-1').style.display = 'none';
+            document.getElementById('history-screen').style.display = 'none';
+            document.getElementById('menu-screen').style.display = 'flex';
+            document.body.style.backgroundImage = BG_MENU;
+        } else if (target === 'step1') {
+            document.getElementById('shop-step-2').style.display = 'none';
+            document.getElementById('shop-step-1').style.display = 'block';
+            
+            // Revert background to Shop BG
+            if(activeG === 'MLBB') document.body.style.backgroundImage = BG_ML_SHOP;
+            else document.body.style.backgroundImage = BG_PUBG_SHOP;
+        }
+    }
+
+    // ID Check Logic
+    let timer = null;
+    function handleInput() { validateStep1(); clearTimeout(timer); timer = setTimeout(checkID, 1200); }
+    
+    function getFlag(region) {
+        if (!region) return "🏳️";
+        const r = region.toLowerCase();
+        if (r.includes("myanmar") || r.includes("mm")) return "🇲🇲 Myanmar";
+        return "🌍 " + region;
+    }
+
+    async function checkID() {
+        const id = document.getElementById('gameId').value;
+        const sid = document.getElementById('serverId').value;
+        if(!id || id.length < 5) return;
+        document.getElementById('nameDisplay').innerText = "Checking...";
+        try {
+            const url = activeG === 'PUBG' ? `https://check-id-game.p.rapidapi.com/api/rapid_api/cekpubgmobile/${id}` : `https://check-id-game.p.rapidapi.com/api/rapid_api/cek_game_ml/${id}/${sid}`;
+            const res = await fetch(url, { headers: { 'x-rapidapi-key': API_KEY, 'x-rapidapi-host': 'check-id-game.p.rapidapi.com' } });
+            const data = await res.json();
+            if(data.success) { 
+                pNm = data.data.username || data.data.name; 
+                pCt = getFlag(data.data.region || "Myanmar");
+                document.getElementById('nameDisplay').innerHTML = `<div style="font-weight:bold; color:#00ff88; text-shadow:0 0 5px black;">✅ ${pNm}</div><div style="font-size:12px; color:#ddd; font-weight:bold;">${pCt}</div>`;
+            } else { 
+                document.getElementById('nameDisplay').innerText = "❌ ID Not Found"; pNm = "Unknown";
+            }
+        } catch(e) { document.getElementById('nameDisplay').innerText = "Network Error"; }
+    }
+
+    async function sendOrder() {
+        const loading = document.getElementById('loadingOverlay');
+        loading.style.display = 'flex';
+        try {
+            const orderID = "JM-" + Math.floor(100000 + Math.random() * 900000);
+            const tg = window.Telegram.WebApp;
+            const user = tg.initDataUnsafe.user || {};
+            const customerId = user.id || "Unknown";
+            const orderTime = new Date().toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
+            const gId = document.getElementById('gameId').value;
+            const sId = document.getElementById('serverId').value;
+
+            // Admin ဆီပို့မည့်စာ (ယခင်အတိုင်း)
+            let adminCaption = `🧾 <b>NEW ORDER: ${orderID}</b>\n━━━━━━━━━━━━━━\n`;
+            adminCaption += `🎮 <b>Game:</b> ${activeG}\n`;
+            adminCaption += `🆔 <b>ID:</b> <code>${gId}</code> ${sId ? '('+sId+')' : ''}\n`;
+            adminCaption += `👤 <b>Name:</b> ${pNm}\n`;
+            adminCaption += `🌍 <b>Region:</b> ${pCt}\n`;
+            adminCaption += `💎 <b>Item:</b> ${sD} <b>x ${qty}</b>\n`;
+            adminCaption += `💰 <b>Total Price:</b> ${totalPrice.toLocaleString()} ks\n`;
+            adminCaption += `🏦 <b>Pay:</b> ${pMt.toUpperCase()}\n`;
+            adminCaption += `📅 <b>Time:</b> ${orderTime}\n━━━━━━━━━━━━━━\n`;
+            adminCaption += `👤 <b>Cust ID:</b> <code>${customerId}</code>`;
+
+            // Customer Chat ထဲမှာပေါ်မည့်စာသား (ပုံထဲကအတိုင်း)
+            const customerSuccessMsg = `⌛ <b>Order တင်ခြင်းအောင်မြင်ပါသည်!</b>\n\n` +
+                                     `🆔 <b>Order ID:</b> ${orderID}\n` +
+                                     `🎮 <b>Game ID:</b> ${gId} ${sId ? '['+sId+']' : ''}\n` +
+                                     `🌍 <b>Region:</b> ${pCt}\n` +
+                                     `💎 <b>ပစ္စည်း:</b> ${sD} x ${qty}\n` +
+                                     `📅 <b>Time:</b> ${orderTime}\n\n` +
+                                     `Admin မှ စစ်ဆေးပြီးပါက စိန်ထည့်သွင်းပေးသွားမည် ဖြစ်ပါသည်။ ကျေးဇူးတင်ပါသည်။`;
+
+            // ၁။ Admin ဆီသို့ Photo ပို့ခြင်း
+            const formData = new FormData();
+            formData.append("chat_id", ADMIN_ID);
+            formData.append("photo", document.getElementById('fileInput').files[0]);
+            formData.append("caption", adminCaption);
+            formData.append("parse_mode", "HTML");
+            formData.append("reply_markup", JSON.stringify({
+                inline_keyboard: [[{ text: "✅ Confirm", callback_data: `ok_${orderID}` }, { text: "❌ Reject", callback_data: `no_${orderID}` }]]
+            }));
+
+            const adminRes = await fetch(`https://api.telegram.org/bot${BOT_T}/sendPhoto`, { method: 'POST', body: formData });
+
+            // ၂။ Customer Chat ထဲသို့ စာလှမ်းပို့ခြင်း (Bot API သုံး၍)
+            const customerRes = await fetch(`https://api.telegram.org/bot${BOT_T}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: customerId,
+                    text: customerSuccessMsg,
+                    parse_mode: "HTML"
+                })
+            });
+
+            if (adminRes.ok && customerRes.ok) {
+                // Mini App ထဲမှာပါ Popup ပြပေးရန်
+                tg.showConfirm("Order တင်ခြင်း အောင်မြင်ပါသည်။ Telegram Chat တွင် အသေးစိတ်ကို ကြည့်ရှုနိုင်ပါသည်။", function() {
+                    tg.close();
+                });
+            } else { alert("Order success but message failed to send."); }
+
+        } catch (e) { alert("System Error: " + e.message); } finally { loading.style.display = 'none'; }
+    }
+
+    function showHistory() {
+        document.getElementById('menu-screen').style.display = 'none';
+        document.getElementById('history-screen').style.display = 'block';
+        const list = document.getElementById('historyList');
+        const history = JSON.parse(localStorage.getItem('jm_orders') || '[]');
+        if (history.length === 0) { list.innerHTML = `<p style="text-align:center; color:#ccc; margin-top:50px;">No History</p>`; }
+        else { list.innerHTML = history.reverse().map(h => `<div class="history-card"><span class="h-price">${h.price}</span><div style="color:#f1c40f; font-weight:bold;">${h.id}</div><div style="font-size:12px; color:#aaa;">${h.game} | ${h.gameId}</div><div style="font-size:11px; color:#ddd;">${h.time}</div></div>`).join(''); }
+    }
+
+    // helper to show/hide save button safely and attach handler
+    function setSaveButtonVisible(visible) {
+        const btn = document.getElementById('saveQrBtn');
+        if (!btn) return;
+        btn.style.display = visible ? 'flex' : 'none';
+        if (visible && !btn._attached) {
+            btn.addEventListener('click', saveQr, { passive: true });
+            btn._attached = true;
+        }
+    }
+
+     // show/hide save button when QR src changes
+    const qrImg = document.getElementById('qr-display');
+    // observe src changes and show save icon
+    if (qrImg) {
+        const obs = new MutationObserver(() => {
+            const hasSrc = qrImg.src && !qrImg.src.endsWith('/');
+            setSaveButtonVisible(hasSrc);
+        });
+        obs.observe(qrImg, { attributes: true, attributeFilter: ['src'] });
+    }
+ 
+     async function saveQr() {
+         try {
+            const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+            if (!qrImg || !qrImg.src) { if (tg && tg.showAlert) tg.showAlert('QR image not available'); else alert('QR image not available'); return; }
+ 
+             // Try fetch the image as blob first (needed for programmatic download)
+             let blob;
+             try {
+                 const res = await fetch(qrImg.src, { mode: 'cors' });
+                 if (!res.ok) throw new Error('Fetch failed');
+                 blob = await res.blob();
+             } catch (fetchErr) {
+                 // fetch may fail due to CORS or tokened URLs — fallback to direct link download attempt
+                // open image in new tab (anchor click) so user can long-press to save on phone
+                const a = document.createElement('a');
+                a.href = qrImg.src;
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                if (tg && tg.showAlert) tg.showAlert('Could not download automatically. Image opened in new tab — long press to save on phone.');
+                else alert('Could not download automatically. Image opened in new tab — long press to save on phone.');
+                 return;
+             }
+ 
+             // Create temporary anchor to trigger download
+             const url = URL.createObjectURL(blob);
+             const a = document.createElement('a');
+             a.href = url;
+             a.download = 'payment-qr.png';
+             document.body.appendChild(a);
+             a.click();
+             a.remove();
+             URL.revokeObjectURL(url);
+-            alert('Saved to device (or check Downloads).');
++            if (tg && tg.showAlert) tg.showAlert('Saved to device (or check Downloads).'); else alert('Saved to device (or check Downloads).');
+ 
+         } catch (e) {
+             // Do not throw — show friendly message (prevents Telegram Mini App errors)
+             console.warn('saveQr error', e);
+-            if (navigator.share && typeof File !== 'undefined') {
++            if (navigator.share && typeof File !== 'undefined') {
+                 // try Web Share API with file (mobile)
+                 try {
+                     const res = await fetch(qrImg.src);
+                     const blob = await res.blob();
+                     const file = new File([blob], 'payment-qr.png', { type: blob.type });
+                     await navigator.share({ files: [file], title: 'Payment QR', text: 'Save QR' });
+                     return;
+                 } catch (_) { /* ignore */ }
+             }
+-            alert('Save failed. Long-press the image to save manually.');
++            const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
++            if (tg && tg.showAlert) tg.showAlert('Save failed. Long-press the image to save manually.');
++            else alert('Save failed. Long-press the image to save manually.');
+         }
+     }
++
++    // ensure save icon visibility when payment details shown
++    const paymentDetails = document.getElementById('payment-details');
++    if (paymentDetails) {
++        const mo = new MutationObserver(() => {
++            const visible = window.getComputedStyle(paymentDetails).display !== 'none' && qrImg && qrImg.src;
++            setSaveButtonVisible(Boolean(visible));
++        });
++        mo.observe(paymentDetails, { attributes: true, attributeFilter: ['style'] });
++    }
+    </script>
 </head>
 <body>
 
@@ -353,7 +789,7 @@
         <div class="pay-box" onclick="selectPayment('kpay', '09759777632', 'sai kwan khay')">
             <img src="https://www.kbzpay.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fblue-L.c7123311.webp&w=64&q=75" class="pay-logo"><br>KPay
         </div>
-        <div class="pay-box" onclick="selectPayment('wavemoney', '09759777632', 'sai kwan khay')">
+        <div class="pay-box" onclick="selectPayment('wave', '09759777632', 'sai kwan khay')">
             <img src="https://play-lh.googleusercontent.com/rPq4GMCZy12WhwTlanEu7RzxihYCgYevQHVHLNha1VcY5SU1uLKHMd060b4VEV1r-OQ=s48-rw" class="pay-logo"><br>wavemoney
         </div>
     </div>
@@ -366,9 +802,18 @@
         </div>
         <span class="pay-name" id="display-pay-name" style="color:#ccc;">Name: Sai Kwan Khay</span>
 
-        <a href="#" id="open-app-link" class="open-app-btn">
-            📲 Open App
-        </a>
+        <!-- Added QR display + floating save icon (works inside Telegram Mini App) -->
+        <div style="margin-top:12px; display:flex; flex-direction:column; align-items:center;">
+            <div class="qr-wrapper" aria-hidden="false">
+                <img id="qr-display" src="" alt="Payment QR">
+                <button id="saveQrBtn" class="qr-save-icon" title="Save QR" style="display:none;">
+                    <i class="fa-solid fa-download" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="qr-save-hint">Long-press the QR on phone to save if automatic save fails</div>
+        </div>
+
+        <a href="#" id="openAppBtn" class="open-app-btn" target="_blank" style="background: #f1c40f; color: #000; font-weight: bold; text-decoration: none; display: none;">Open Payment App</a>
     </div>
 
     <div class="upload-area" onclick="document.getElementById('fileInput').click()">
@@ -543,47 +988,25 @@
     }
 
     function selectPayment(mt, num, name) {
-        pMt = mt;
-        document.querySelectorAll('.pay-box').forEach(i => i.classList.remove('active'));
-        event.currentTarget.classList.add('active');
-        document.getElementById('payment-details').style.display = 'block';
-        document.getElementById('pay-method-name').innerText = mt.toUpperCase() + " နံပါတ်";
-        document.getElementById('display-pay-num').innerText = num;
-        document.getElementById('display-pay-name').innerText = "Name: " + name;
+    pMt = mt;
+    document.querySelectorAll('.pay-box').forEach(i => i.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.getElementById('payment-details').style.display = 'block';
+    document.getElementById('pay-method-name').innerText = mt.toUpperCase() + " နံပါတ်";
+    document.getElementById('display-pay-num').innerText = num;
+    document.getElementById('display-pay-name').innerText = "Name: " + name;
 
-        const appLinkBtn = document.getElementById('open-app-link');
-        
-        if (mt === 'kpay') {
-            appLinkBtn.onclick = function(e) {
-                e.preventDefault();
-                // KPay App ကို တိုက်ရိုက်ခေါ်ခြင်း
-                window.Telegram.WebApp.openLink("kbzpay://");
-                
-                // Backup အနေဖြင့် App မပွင့်ပါက 1 စက္ကန့်အကြာတွင် Website ဖွင့်ပေးရန်
-                setTimeout(() => {
-                    window.Telegram.WebApp.openLink("https://www.kbzpay.com/my");
-                }, 1000);
-            };
-            appLinkBtn.innerText = "📲 Open KPay App";
-            appLinkBtn.style.background = "#005eab";
-            appLinkBtn.style.color = "#fff";
-        } else {
-            appLinkBtn.onclick = function(e) {
-                e.preventDefault();
-                // WavePay App ကို တိုက်ရိုက်ခေါ်ခြင်း
-                window.Telegram.WebApp.openLink("wavepay://");
-                
-                setTimeout(() => {
-                    window.Telegram.WebApp.openLink("https://wavemoney.com.mm/");
-                }, 1000);
-            };
-            appLinkBtn.innerText = "📲 Open Wave Money";
-            appLinkBtn.style.background = "#ffe600";
-            appLinkBtn.style.color = "#000";
-        }
-        
-        validateStep2(); 
+    const qrImg = document.getElementById('qr-display');
+    
+    // မှန်ကန်ပြီး အမြဲတမ်းသုံးလို့ရမယ့် Public Raw Links များ
+    if (mt === 'kpay') {
+        qrImg.src = "https://raw.githubusercontent.com/khunkhaylso-ship-it/diamond-price-jm/main/kpay.png";
+    } else if (mt === 'wave') {
+        qrImg.src = "https://raw.githubusercontent.com/khunkhaylso-ship-it/diamond-price-jm/main/wave.png";
     }
+    
+    validateStep2();
+}
 
     function previewFile() {
         const file = document.getElementById('fileInput').files[0];
