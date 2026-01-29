@@ -345,21 +345,82 @@
     /* Improve menu / header spacing */
     .menu-title { margin-bottom: 26px; font-size: 22px; }
 
-    /* Responsive adjustments for phones */
-    @media (max-width: 480px) {
-        body { background-attachment: scroll; } /* avoid parallax on phone */
-        .grid { grid-template-columns: 1fr; gap: 14px; }
-        .game-btn { height: 100px; padding: 16px; border-radius: 18px; }
-        .game-icon { width: 70px; height: 70px; }
-        .game-info { font-size: 17px; }
-        .item-card { min-height: 110px; padding: 16px; border-radius: 14px; }
-        .cat-label { font-size: 16px; margin-top: 18px; margin-bottom: 10px; }
-        .qty-control { gap: 18px; padding: 14px; }
-        .footer { padding: 14px; }
+    /* --- Compact list mode (use for MLBB if you want denser list like PUBG) --- */
+    .container.compact-list .bg-spacer { height: 4vh; }
+    .container.compact-list .grid { gap: 8px; }
+    .container.compact-list .cat-label { margin: 12px 0 6px; font-size: 13px; }
+    .container.compact-list .item-card {
+        min-height: 84px;
+        padding: 10px;
+        border-radius: 12px;
+        background: rgba(0,0,0,0.65);
     }
-    @media (max-width: 360px) {
-        .item-price { font-size: 14px; }
-        .item-name { font-size: 13px; }
+    .container.compact-list .item-card img { width: 40px; height: 40px; }
+    .container.compact-list .item-name { font-size: 13px; }
+    .container.compact-list .item-price { font-size: 13px; }
+
+    /* Dense inline 2-column style for diamonds (MLBB) */
+    .container.compact-list .grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .container.compact-list .item-card {
+        min-height: 56px;
+        padding: 8px 10px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(0,0,0,0.55);
+    }
+    .container.compact-list .item-card img { width: 28px; height: 28px; margin: 0; }
+    .container.compact-list .item-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: #fff;
+        display: inline-block;
+    }
+    /* add diamond emoji before name for compact mode */
+    /* price aligned to right, smaller */
+    .container.compact-list .item-price { font-size: 12px; color: #00ff88; margin-left: auto; }
+    /* keep weekly pass large when it spans 2 columns */
+    .container.compact-list .item-card[style*="grid-column: span 2"] {
+        min-height: 120px;
+        padding: 18px;
+    }
+
+    /* --- Debugging Styles (remove in production) --- */
+    /* Uncomment to see grid areas */
+    /*
+    .grid {
+        background-color: rgba(255, 0, 0, 0.1);
+        border: 2px dashed rgba(255, 0, 0, 0.7);
+    }
+    .item-card {
+        position: relative;
+        overflow: visible;
+    }
+    .item-card::after {
+        content: attr(data-name);
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 4px 8px;
+        font-size: 12px;
+        color: #000;
+        white-space: nowrap;
+        transform: translateY(-100%);
+        transition: transform 0.2s;
+    }
+    .item-card:hover::after {
+        transform: translateY(-110%);
+    }
+    */
+
+    /* --- Miscellaneous --- */
+    /* Hide arrows on number inputs (mobile UX) */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
     }
     </style>
     
@@ -372,8 +433,8 @@
     let totalPrice = 0;
 
     // Background URLs
-    const BG_MENU = "url('https://i.pinimg.com/736x/e3/d5/03/e3d503ffbdbf4413bbc2c795a989e489.jpg')";
-    const BG_ML_SHOP = "url('https://i.pinimg.com/736x/3f/70/30/3f70302038628c40b6346be202c88d37.jpg')";
+    const BG_MENU = "url('https://i.pinimg.com/736x/16/8e/0b/168e0b47471137ccb25ee60669a736dc.jpg')";
+    const BG_ML_SHOP = "url('https://i.pinimg.com/736x/87/3f/1a/873f1a1f7e8d4b1c7cdea34edca6ce35.jpg')";
     const BG_ML_PAY = "url('https://i.pinimg.com/736x/08/0d/cf/080dcf0cb441d3acd3d1218c7e7b0eda.jpg')";
     const BG_PUBG_SHOP = "url('https://i.pinimg.com/736x/73/6c/39/736c3979a02d2a369cec2a50b45666cb.jpg')";
     const BG_PUBG_PAY = "url('https://i.pinimg.com/736x/98/81/c5/9881c55ac808087d44720bc539ab9326.jpg')";
