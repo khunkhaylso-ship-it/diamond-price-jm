@@ -433,8 +433,8 @@
     let totalPrice = 0;
 
     // Background URLs
-    const BG_MENU = "url('https://i.pinimg.com/736x/16/8e/0b/168e0b47471137ccb25ee60669a736dc.jpg')";
-    const BG_ML_SHOP = "url('https://i.pinimg.com/736x/87/3f/1a/873f1a1f7e8d4b1c7cdea34edca6ce35.jpg')";
+    const BG_MENU = "url('https://i.pinimg.com/736x/e3/d5/03/e3d503ffbdbf4413bbc2c795a989e489.jpg')";
+    const BG_ML_SHOP = "url('https://i.pinimg.com/736x/3f/70/30/3f70302038628c40b6346be202c88d37.jpg')";
     const BG_ML_PAY = "url('https://i.pinimg.com/736x/08/0d/cf/080dcf0cb441d3acd3d1218c7e7b0eda.jpg')";
     const BG_PUBG_SHOP = "url('https://i.pinimg.com/736x/73/6c/39/736c3979a02d2a369cec2a50b45666cb.jpg')";
     const BG_PUBG_PAY = "url('https://i.pinimg.com/736x/98/81/c5/9881c55ac808087d44720bc539ab9326.jpg')";
@@ -745,103 +745,12 @@
         if (history.length === 0) { list.innerHTML = `<p style="text-align:center; color:#ccc; margin-top:50px;">No History</p>`; }
         else { list.innerHTML = history.reverse().map(h => `<div class="history-card"><span class="h-price">${h.price}</span><div style="color:#f1c40f; font-weight:bold;">${h.id}</div><div style="font-size:12px; color:#aaa;">${h.game} | ${h.gameId}</div><div style="font-size:11px; color:#ddd;">${h.time}</div></div>`).join(''); }
     }
-
-    // helper to show/hide save button safely and attach handler
-    function setSaveButtonVisible(visible) {
-        const btn = document.getElementById('saveQrBtn');
-        if (!btn) return;
-        btn.style.display = visible ? 'flex' : 'none';
-        if (visible && !btn._attached) {
-            btn.addEventListener('click', saveQr, { passive: true });
-            btn._attached = true;
-        }
-    }
-
-     // show/hide save button when QR src changes
-    const qrImg = document.getElementById('qr-display');
-    // observe src changes and show save icon
-    if (qrImg) {
-        const obs = new MutationObserver(() => {
-            const hasSrc = qrImg.src && !qrImg.src.endsWith('/');
-            setSaveButtonVisible(hasSrc);
-        });
-        obs.observe(qrImg, { attributes: true, attributeFilter: ['src'] });
-    }
- 
-     async function saveQr() {
-         try {
-            const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-            if (!qrImg || !qrImg.src) { if (tg && tg.showAlert) tg.showAlert('QR image not available'); else alert('QR image not available'); return; }
- 
-             // Try fetch the image as blob first (needed for programmatic download)
-             let blob;
-             try {
-                 const res = await fetch(qrImg.src, { mode: 'cors' });
-                 if (!res.ok) throw new Error('Fetch failed');
-                 blob = await res.blob();
-             } catch (fetchErr) {
-                 // fetch may fail due to CORS or tokened URLs — fallback to direct link download attempt
-                // open image in new tab (anchor click) so user can long-press to save on phone
-                const a = document.createElement('a');
-                a.href = qrImg.src;
-                a.target = '_blank';
-                a.rel = 'noopener noreferrer';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                if (tg && tg.showAlert) tg.showAlert('Could not download automatically. Image opened in new tab — long press to save on phone.');
-                else alert('Could not download automatically. Image opened in new tab — long press to save on phone.');
-                 return;
-             }
- 
-             // Create temporary anchor to trigger download
-             const url = URL.createObjectURL(blob);
-             const a = document.createElement('a');
-             a.href = url;
-             a.download = 'payment-qr.png';
-             document.body.appendChild(a);
-             a.click();
-             a.remove();
-             URL.revokeObjectURL(url);
--            alert('Saved to device (or check Downloads).');
-+            if (tg && tg.showAlert) tg.showAlert('Saved to device (or check Downloads).'); else alert('Saved to device (or check Downloads).');
- 
-         } catch (e) {
-             // Do not throw — show friendly message (prevents Telegram Mini App errors)
-             console.warn('saveQr error', e);
--            if (navigator.share && typeof File !== 'undefined') {
-+            if (navigator.share && typeof File !== 'undefined') {
-                 // try Web Share API with file (mobile)
-                 try {
-                     const res = await fetch(qrImg.src);
-                     const blob = await res.blob();
-                     const file = new File([blob], 'payment-qr.png', { type: blob.type });
-                     await navigator.share({ files: [file], title: 'Payment QR', text: 'Save QR' });
-                     return;
-                 } catch (_) { /* ignore */ }
-             }
--            alert('Save failed. Long-press the image to save manually.');
-+            const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-+            if (tg && tg.showAlert) tg.showAlert('Save failed. Long-press the image to save manually.');
-+            else alert('Save failed. Long-press the image to save manually.');
-         }
-     }
-+
-+    // ensure save icon visibility when payment details shown
-+    const paymentDetails = document.getElementById('payment-details');
-+    if (paymentDetails) {
-+        const mo = new MutationObserver(() => {
-+            const visible = window.getComputedStyle(paymentDetails).display !== 'none' && qrImg && qrImg.src;
-+            setSaveButtonVisible(Boolean(visible));
-+        });
-+        mo.observe(paymentDetails, { attributes: true, attributeFilter: ['style'] });
-+    }
-    </script>
+</script>
 </head>
 <body>
 
 <div id="splash-screen" style="display:flex;">
-    <img src="https://scontent.fbkk19-1.fna.fbcdn.net/v/t39.30808-6/540641345_122132544716926701_3529674997104008223_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=wTjOEAxcU0AQ7kNvwFZ6ig5&_nc_oc=AdnmnnhfXFtortGipVNxfkEn76lggT2JhAYC9uOCMhCury5YJkmqHDCw7h4Vy6rNA94&_nc_zt=23&_nc_ht=scontent.fbkk19-1.fna&_nc_gid=Tkb6-k-tMfU-5FIXRWGBGA&oh=00_AfpACSDiXYRY6EwLqVI2EEat3-xBPmdNaYIwaxBgaJ_Iig&oe=6979730F" class="splash-logo">
+    <img class="splash-logo" src="https://raw.githubusercontent.com/khunkhaylso-ship-it/diamond-price-jm/refs/heads/main/jmgameshop.png" alt="JM Game Shop">
     <p style="color: #f1c40f; letter-spacing: 3px; font-weight: bold; text-shadow: 0 0 10px #000;">JM GAME SHOP</p>
 </div>
 
