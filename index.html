@@ -305,6 +305,62 @@
         box-shadow: 0 4px 10px rgba(0,0,0,0.4);
     }
     .qr-save-hint { color: #ccc; font-size: 12px; margin-top: 6px; }
+
+    /* --- Accessibility / Mobile clarity overlay & improved cards --- */
+    /* Darken busy background so UI content stands out */
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.45));
+        pointer-events: none;
+        z-index: 0;
+    }
+    /* Bring containers above overlay */
+    .container, #menu-screen, #splash-screen, #history-screen {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Increase spacing and card contrast for readability */
+    .grid { gap: 16px; grid-template-columns: repeat(2, 1fr); }
+    .item-card {
+        min-height: 120px;
+        padding: 18px;
+        background: rgba(0,0,0,0.7); /* darker so text pops */
+        border: 1px solid rgba(255,255,255,0.06);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .item-card img { width: 48px; height: 48px; }
+    .item-name { font-size: 14px; }
+    .item-price { font-size: 15px; color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.12); }
+
+    /* Bigger weekly-pass full width on mobile screens */
+    .item-card[style*="grid-column: span 2"] { border-radius: 18px; }
+
+    /* Gentle hover/active scaling */
+    .item-card:hover { transform: translateY(-6px); box-shadow: 0 14px 30px rgba(0,0,0,0.7); }
+
+    /* Improve menu / header spacing */
+    .menu-title { margin-bottom: 26px; font-size: 22px; }
+
+    /* Responsive adjustments for phones */
+    @media (max-width: 480px) {
+        body { background-attachment: scroll; } /* avoid parallax on phone */
+        .grid { grid-template-columns: 1fr; gap: 14px; }
+        .game-btn { height: 100px; padding: 16px; border-radius: 18px; }
+        .game-icon { width: 70px; height: 70px; }
+        .game-info { font-size: 17px; }
+        .item-card { min-height: 110px; padding: 16px; border-radius: 14px; }
+        .cat-label { font-size: 16px; margin-top: 18px; margin-bottom: 10px; }
+        .qty-control { gap: 18px; padding: 14px; }
+        .footer { padding: 14px; }
+    }
+    @media (max-width: 360px) {
+        .item-price { font-size: 14px; }
+        .item-name { font-size: 13px; }
+    }
     </style>
     
     <script>
