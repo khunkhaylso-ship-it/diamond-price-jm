@@ -14,10 +14,13 @@
     font-family: 'Poppins', sans-serif;
     color: white;
     background-color: #000;
+    /* နောက်ခံပုံ တစ်ပုံတည်း အပြည့်ပေါ်စေရန် အောက်ပါ ၄ လိုင်းကို သေချာထည့်ပါ */
+    background-image: url('သင့်ရဲ့_ပုံ_link'); 
     background-repeat: no-repeat;
     background-size: cover; 
     background-position: center center;
-    background-attachment: fixed; /* ဤလိုင်းက list ရွေ့သော်လည်း background ကို ငြိမ်စေပါသည် */
+    background-attachment: fixed; 
+    /* -------------------------------------------------- */
     width: 100vw; 
     min-height: 100vh;
     transition: background-image 0.6s ease-in-out;
@@ -46,13 +49,15 @@
 
         /* --- Glassmorphism Containers --- */
         /* နောက်ခံပုံကို ပိုမြင်ရအောင် အမည်းရောင်အပါး (Transparent) ကိုသုံးထားသည် */
-        .container, #menu-screen {
-    padding: 0 15px; 
-    background: rgba(0, 0, 0, 0.2); /* 0.25 မှ 0.2 သို့ လျှော့ချပါက background ပိုမြင်ရမည် */
-    backdrop-filter: blur(2px); /* Blur ကိုလည်း 2px ခန့်ထိ လျှော့ပေးပါ */
-    width: 100%;
-    box-sizing: border-box;
-}
+        .container { 
+             width: 100vw; 
+             max-width: 100%; 
+             padding: 15px; 
+             box-sizing: border-box; 
+             overflow-x: hidden; 
+             background: rgba(0, 0, 0, 0.2); 
+             backdrop-filter: blur(2px);
+        }
         
         .bg-spacer { height: 10vh; width: 100%; }
 
