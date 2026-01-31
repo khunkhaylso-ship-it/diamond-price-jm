@@ -27,6 +27,21 @@
     overflow-x: hidden;
 }
 
+body {
+    background-size: cover !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+    background-position: center !important;
+}
+
+/* Language Switcher Styling */
+.lang-container { position: fixed; top: 15px; right: 15px; z-index: 10000; }
+.lang-btn { background: rgba(0, 0, 0, 0.7); color: #f1c40f; border: 1px solid #f1c40f; padding: 8px 15px; border-radius: 20px; font-size: 13px; backdrop-filter: blur(5px); cursor: pointer; display: flex; align-items: center; gap: 5px; }
+.lang-dropdown { display: none; position: absolute; top: 40px; right: 0; background: #1a1a1a; border-radius: 10px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+.lang-dropdown div { padding: 10px 20px; font-size: 14px; color: white; cursor: pointer; border-bottom: 1px solid #333; }
+.lang-dropdown div:hover { background: #333; }
+.lang-container:hover .lang-dropdown { display: block; }
+
         /* --- Animations --- */
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes glow { 0% { box-shadow: 0 0 5px #f1c40f; } 50% { box-shadow: 0 0 20px #f1c40f; } 100% { box-shadow: 0 0 5px #f1c40f; } }
@@ -58,6 +73,7 @@
              background: rgba(0, 0, 0, 0.2); 
              backdrop-filter: blur(2px);
         }
+        
         
         .bg-spacer { height: 10vh; width: 100%; }
 
@@ -526,16 +542,22 @@
     });
     container.innerHTML += bth + "</div>";
 
+    const currentLang = localStorage.getItem('jm_lang') || 'my';
+const t = translations[currentLang];
     // Diamonds
-    let nth = `<div class="cat-label">Diamonds</div><div class="grid">`;
-    mlData.normal.forEach(i => { 
-        nth += `<div class="item-card" onclick="selectItem(this,'${i.n}',${i.p})">
-                    <img src="https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760335249005_d119a418-95ae-4562-bd62-135e57cf7504.png">
-                    <br><span class="item-name">${i.n}</span>
-                    <span class="item-price">${i.p.toLocaleString()} ks</span>
-                </div>`; 
-    });
-    container.innerHTML += nth + "</div>";
+    let nth = `<div class="cat-label">${t.dia}</div><div class="grid">`;
+mlData.normal.forEach(i => { 
+    // i.n ထဲမှာ "11" ဆိုတဲ့ ဂဏန်းပဲပါရပါမယ်။ စာသားကို t.dia ကနေ ယူပါမယ်။
+    // အကယ်၍ i.n ထဲမှာ "11 Dia" လို့ ပါပြီးသားဆိုရင် .replace နဲ့ အစားထိုးပါမယ်။
+    let displayName = i.n.replace("Dia", t.dia).replace("Diamonds", t.dia);
+
+    nth += `<div class="item-card" onclick="selectItem(this,'${displayName}',${i.p})">
+                <img src="https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760335249005_d119a418-95ae-4562-bd62-135e57cf7504.png">
+                <br><span class="item-name">${displayName}</span>
+                <span class="item-price">${i.p.toLocaleString()} ks</span>
+            </div>`; 
+});
+container.innerHTML += nth + "</div>";
 
         } else {
             document.body.style.backgroundImage = BG_PUBG_SHOP;
@@ -694,6 +716,63 @@
         } catch(e) { document.getElementById('nameDisplay').innerText = "Network Error"; }
     }
 
+    // --- Language Logic ---
+const translations = {
+    my: { title: "JM GAME SHOP", next: "ရှေ့သို့", confirm: "အော်ဒါတင်မည်", placeholder: "User ID ရိုက်ထည့်ပါ", selectItem: "ပစ္စည်းအရင်ရွေးပါ", total: "စုစုပေါင်း", upload: "ငွေလွှဲ Screenshot တင်ရန် နှိပ်ပါ", payMethod: "Payment Method", dia: "Diamonds", lang: "မြန်မာ" },
+    en: { title: "JM GAME SHOP", next: "Next Step", confirm: "Confirm Order", placeholder: "Enter User ID", selectItem: "Please select item", total: "Total Amount", upload: "Click to upload Screenshot", payMethod: "Payment Method", dia: "Diamonds", lang: "English" },
+    zh: { title: "JM 游戏商店", next: "立即购买", confirm: "确认订单", placeholder: "输入用户 ID", selectItem: "请先选择商品", total: "总计金额", upload: "点击上传付款截图", payMethod: "付款方式", dia: "砖石", lang: "中文" }
+};
+
+function changeLang(lang) {
+    if (!translations[lang]) return;
+    const t = translations[lang];
+
+    // ၁။ ညာဘက်အပေါ်က ပြနေတဲ့စာသား
+    const currentLangEl = document.getElementById('current-lang');
+    if (currentLangEl) currentLangEl.innerText = t.lang;
+
+    // ၂။ Diamonds / 砖石 စာသားများကို ပြောင်းလဲခြင်း
+    // Category ခေါင်းစဉ်များကို ပြောင်းရန်
+    const catLabels = document.querySelectorAll('.cat-label');
+    catLabels.forEach(el => {
+        // Diamonds သို့မဟုတ် PUBG UC စတာတွေကို ဘာသာစကားအလိုက် ပြောင်းမယ်
+        if (activeG === 'MLBB') {
+            el.innerText = t.dia; // MLBB ဖြစ်ရင် 'Diamonds' သို့မဟုတ် '砖石'
+        } else {
+            el.innerText = "PUBG Mobile UC (All Server)"; // PUBG အတွက် (လိုအပ်ရင် t ထဲမှာ ထည့်နိုင်ပါတယ်)
+        }
+    });
+
+    // ၃။ ပစ္စည်းအရင်ရွေးပါ / ဝယ်မည် ခလုတ်
+    const btn1 = document.getElementById('btnStep1');
+    if (btn1) {
+        if (btn1.disabled) {
+            btn1.innerText = t.selectItem;
+        } else {
+            // ဝယ်မည်စာသားနှင့်အတူ ဈေးနှုန်းပါပြရန်
+            btn1.innerText = `${t.next} - ${totalPrice.toLocaleString()} ks`;
+        }
+    }
+
+    // ၄။ Screenshot တင်ရန် နှင့် အခြားစာသားများ
+    const uploadTxt = document.getElementById('uploadText');
+    if (uploadTxt) uploadTxt.innerText = t.upload;
+
+    const btn2 = document.getElementById('btnStep2');
+    if (btn2) btn2.innerText = t.confirm;
+
+    const idInput = document.getElementById('gameId');
+    if (idInput) idInput.placeholder = t.placeholder;
+
+    localStorage.setItem('jm_lang', lang);
+}
+
+// Page load ဖြစ်တဲ့အခါ သိမ်းထားတဲ့ ဘာသာစကားအတိုင်း ပြရန်
+window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('jm_lang') || 'my';
+    changeLang(saved);
+});
+
     async function sendOrder() {
         const loading = document.getElementById('loadingOverlay');
         loading.style.display = 'flex';
@@ -772,6 +851,19 @@
 </head>
 <body>
 
+    <div class="lang-container">
+    <div class="lang-btn"><i class="fa-solid fa-globe"></i> <span id="current-lang">🇲🇲 မြန်မာ</span></div>
+    <div class="lang-dropdown">
+        <div onclick="changeLang('my')">🇲🇲 မြန်မာ</div>
+        <div onclick="changeLang('en')">🇺🇸 English</div>
+        <div onclick="changeLang('zh')">🇨🇳 中文</div>
+    </div>
+</div>
+
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <p style="color:#fff; margin-top:15px;">Processing your order...</p>
+    </div>
 <div id="splash-screen" style="display:flex;">
     <img class="splash-logo" src="https://raw.githubusercontent.com/khunkhaylso-ship-it/diamond-price-jm/refs/heads/main/jmgameshop.png" alt="JM Game Shop">
     <p style="color: #f1c40f; letter-spacing: 3px; font-weight: bold; text-shadow: 0 0 10px #000;">JM GAME SHOP</p>
@@ -949,7 +1041,11 @@
     document.getElementById('shop-title').innerText = "MOBILE LEGENDS";
     document.getElementById('serverId').style.display = 'block';
     
-    // Weekly Pass (Width 100% ပေးလိုက်မှ screen ညီမှာပါ)
+    // လက်ရှိရွေးထားတဲ့ ဘာသာစကားကို ယူမယ် (မရှိရင် မြန်မာ 'my' ယူမယ်)
+    const currentLang = localStorage.getItem('jm_lang') || 'my';
+    const t = translations[currentLang];
+
+    // Weekly Pass အပိုင်း
     container.innerHTML += `
         <div class="cat-label">Weekly Pass</div>
         <div class="grid">
@@ -960,31 +1056,19 @@
             </div>
         </div>`;
     
-    // Exclusive / One-time packages (new)
+    // Exclusive Packages အပိုင်း
     let pkgHtml = `<div class="cat-label">Exclusive Packages</div><div class="grid">`;
-    mlData.packages.forEach(i => {
-        pkgHtml += `<div class="item-card" onclick="selectItem(this,'${i.n}',${i.p})">
-                        <img src="${i.icon}">
-                        <br><span class="item-name">${i.n}</span>
-                        <span class="item-note">${i.note}</span>
-                        <span class="item-price">${i.p.toLocaleString()} ks</span>
-                    </div>`;
-    });
+    // ... (ကျန်တဲ့ code များ) ...
     container.innerHTML += pkgHtml + "</div>";
 
-    // Double Diamond (Promo)
+    // Double Diamond အပိုင်း
     let bth = `<div class="cat-label">Double Diamond (Promo)</div><div class="grid">`;
-    mlData.promo.forEach(i => { 
-        bth += `<div class="item-card" onclick="selectItem(this,'${i.n}',${i.p})">
-                    <img src="https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760334222477_bdd28040-0bd9-4dff-b748-ed7b1a0aecdd.png">
-                    <br><span class="item-name">${i.n}</span>
-                    <span class="item-price">${i.p.toLocaleString()} ks</span>
-                </div>`; 
-    });
+    // ... (ကျန်တဲ့ code များ) ...
     container.innerHTML += bth + "</div>";
 
-    // Diamonds
-    let nth = `<div class="cat-label">Diamonds</div><div class="grid">`;
+    // --- Diamonds အပိုင်း (ဤနေရာတွင် ပြင်ပါ) ---
+    // t.dia ကို သုံးထားခြင်းဖြင့် ဘာသာစကားပြောင်းရင် Diamonds/砖石 အလိုအလျောက် ပြောင်းပါမည်
+    let nth = `<div class="cat-label">${t.dia}</div><div class="grid">`;
     mlData.normal.forEach(i => { 
         nth += `<div class="item-card" onclick="selectItem(this,'${i.n}',${i.p})">
                     <img src="https://cdn1.codashop.com/images/106_5e7a01a7-89b9-4b13-a512-a3e72f63f0d1_product/1760335249005_d119a418-95ae-4562-bd62-135e57cf7504.png">
